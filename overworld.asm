@@ -21,7 +21,7 @@ org $04A300
         and #$07
         tax 
         lda.l $009E7D,x
-        ldx !current_ow_level
+        ldx !correct_ow_level
         ora !level_clears,x
         sta !level_clears,x
     .dont_sync
@@ -53,22 +53,22 @@ pushpc
                 ldx $04
                 lda $7ED000,x
                 sep #$30
-                sta !current_ow_level
+                sta !correct_ow_level
                 tax 
                 lda $06FF00,x
                 cmp #$FF
                 beq +
-                sta !current_ow_level
+                sta !correct_ow_level
             +   
                 rts 
 
         get_translevel_bit:
-                lda !current_ow_level
+                lda !correct_ow_level
                 lsr 
                 lsr 
                 lsr 
                 tay 
-                lda !current_ow_level
+                lda !correct_ow_level
                 and #$07
                 tax 
                 rts 
@@ -276,7 +276,7 @@ prepare_dynamic_tilemap:
 
 process_level:
         jsr get_translevel_num
-        ldx !current_ow_level
+        ldx !correct_ow_level
         lda.l map_indicator_data,x
         bpl .handle_data
         rtl 
@@ -300,7 +300,7 @@ process_level:
 handle_blocksanity:
         lda.l blocksanity_enabled_flag
         beq .dont_draw
-        ldx !current_ow_level
+        ldx !correct_ow_level
         ldy.b #!icon_disabled
         lda.l map_indicator_data,x
         and #$40
@@ -329,7 +329,7 @@ handle_blocksanity:
 handle_bonus_blocks:
         lda.l bonus_block_enabled_flag
         beq .dont_draw
-        ldx !current_ow_level
+        ldx !correct_ow_level
         ldy.b #!icon_disabled
         lda.l map_indicator_data,x
         and #$20
@@ -359,7 +359,7 @@ handle_bonus_blocks:
 handle_checkpoints:
         lda.l checkpoints_enabled_flag
         beq .dont_draw
-        ldx !current_ow_level
+        ldx !correct_ow_level
         lda.l map_indicator_data,x
         and #$10
         beq .dont_draw
@@ -384,7 +384,7 @@ handle_checkpoints:
 handle_moons:
         lda.l moon_enabled_flag
         beq .dont_draw
-        ldx !current_ow_level
+        ldx !correct_ow_level
         lda.l map_indicator_data,x
         and #$08
         beq .dont_draw
@@ -409,7 +409,7 @@ handle_moons:
 handle_dragon_coins:
         lda.l dragon_coin_enabled_flag
         beq .dont_draw
-        ldx !current_ow_level
+        ldx !correct_ow_level
         lda.l map_indicator_data,x
         and #$04
         beq .dont_draw
@@ -434,7 +434,7 @@ handle_dragon_coins:
 
 
 handle_exit_2:
-        ldx !current_ow_level
+        ldx !correct_ow_level
         lda.l map_indicator_data,x
         and #$02
         beq .dont_draw
@@ -454,7 +454,7 @@ handle_exit_2:
     .dont_draw
 
 handle_exit_1:
-        ldx !current_ow_level
+        ldx !correct_ow_level
         lda.l map_indicator_data,x
         and #$01
         beq .dont_draw
@@ -473,105 +473,6 @@ handle_exit_1:
         jsr update_flag_pointers
     .dont_draw
         rtl 
-
-map_indicator_data:
-  ;     dsbcmy21
-    db %10000000        ; 00 - Bonus
-    db %01000101        ; 01 - Vanilla Secret 2
-    db %01000101        ; 02 - Vanilla Secret 3
-    db %10000000        ; 03 - Top Secret Area
-    db %01000011        ; 04 - Donut Ghost House
-    db %01100101        ; 05 - Donut Plains 3
-    db %01011101        ; 06 - Donut Plains 4
-    db %01010001        ; 07 - Morton's Castle
-    db %00000001        ; 08 - Green Switch Palace
-    db %01000111        ; 09 - Donut Plains 2
-    db %01000111        ; 0A - Donut Secret 1
-    db %01010001        ; 0B - Vanilla Fortress
-    db %01100101        ; 0C - Butter Bridge 1
-    db %01000101        ; 0D - Butter Bridge 2
-    db %01000001        ; 0E - Ludwig Castle
-    db %01001111        ; 0F - Cheese Bridge Area
-    db %01010101        ; 10 - Cookie Mountain
-    db %01000101        ; 11 - Soda Lake
-    db %10000000        ; 12 - Test
-    db %01000011        ; 13 - Donut Secret House
-    db %00000001        ; 14 - Yellow Switch Palace
-    db %01010111        ; 15 - Donut Plains 1
-    db %10000000        ; 16 - Test
-    db %10000000        ; 17 - Test
-    db %01000101        ; 18 - Sunken Ghost Ship
-    db %10000000        ; 19 - Test
-    db %01010001        ; 1A - Wendy's Castle
-    db %01000001        ; 1B - Chocolate Fortress
-    db %01000101        ; 1C - Chocolate Island 5
-    db %01000101        ; 1D - Chocolate Island 4
-    db %10000000        ; 1E - Test
-    db %01000001        ; 1F - Forest Fortress
-    db %01000101        ; 20 - Roy's Castle
-    db %01000001        ; 21 - Choco Ghost House
-    db %01001101        ; 22 - Chocolate Island 1
-    db %01100111        ; 23 - Chocolate Island 3
-    db %01010111        ; 24 - Chocolate Island 2
-    db %01000001        ; 101 - Iggy's Castle
-    db %01010101        ; 102 - Yoshi's Island 4
-    db %01100101        ; 103 - Yoshi's Island 3
-    db %10000000        ; 104 - Yoshi's House
-    db %01001101        ; 105 - Yoshi's Island 1
-    db %01000101        ; 106 - Yoshi's Island 2
-    db %01010101        ; 107 - Vanilla Ghost House
-    db %10000000        ; 108 - Test
-    db %01000111        ; 109 - Vanilla Secret 1
-    db %01001101        ; 10A - Vanilla Dome 3
-    db %01000101        ; 10B - Donut Secret 2
-    db %10000000        ; 10C - Test
-    db %10000000        ; 10D - Front Door
-    db %10000000        ; 10E - Back Door
-    db %01000011        ; 10F - Valley of Bowser 4
-    db %01010101        ; 110 - Larry's Castle
-    db %01000001        ; 111 - Valley Fortress
-    db %10000000        ; 112 - Test
-    db %01000101        ; 113 - Valley of Bowser 3
-    db %01000111        ; 114 - Valley Ghost House
-    db %01010111        ; 115 - Valley of Bowser 2
-    db %01001101        ; 116 - Valley of Bowser 1
-    db %01000001        ; 117 - Chocolate Secret
-    db %01000111        ; 118 - Vanilla Dome 2
-    db %01010101        ; 119 - Vanilla Dome 4
-    db %01000111        ; 11A - Vanilla Dome 1
-    db %00000001        ; 11B - Red Switch Palace
-    db %01000001        ; 11C - Lemmy's Castle
-    db %01001111        ; 11D - Forest Ghost House
-    db %01000011        ; 11E - Forest of Illusion 1
-    db %01000111        ; 11F - Forest of Illusion 4
-    db %01000111        ; 120 - Forest of Illusion 2
-    db %00000001        ; 121 - Blue Switch Palace
-    db %01000101        ; 122 - Forest Secret Area
-    db %01010111        ; 123 - Forest of Illusion 3
-    db %10000000        ; 124 - Test
-    db %01000101        ; 125 - Funky
-    db %01000101        ; 126 - Outrageous
-    db %01000101        ; 127 - Mondo
-    db %01000101        ; 128 - Groovy
-    db %10000000        ; 129 - Test
-    db %01010101        ; 12A - Gnarly
-    db %01000101        ; 12B - Tubular
-    db %01000101        ; 12C - Way Cool
-    db %01000101        ; 12D - Awesome
-    db %10000000        ; 12E - Test
-    db %10000000        ; 12F - Test
-    db %01000011        ; 130 - Star World 2
-    db %10000000        ; 131 - Test
-    db %01000011        ; 132 - Star World 3
-    db %10000000        ; 133 - Test
-    db %00000111        ; 134 - Star World 1
-    db %01000011        ; 135 - Star World 4
-    db %01000011        ; 136 - Star World 5
-    db %10000000        ; 137 - Test
-    db %10000000        ; 138 - Test
-    db %10000000        ; 139 - Test
-    db %10000000        ; 13A - Test
-    db %10000000        ; 13B - Test
 
 ;#########################################################################
 ;# Draw tilemap

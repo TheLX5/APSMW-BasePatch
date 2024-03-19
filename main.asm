@@ -32,3 +32,4 @@ org !main_code_location
     incsrc "palette_loader.asm"
     incsrc "score_sprites.asm"
     incsrc "player_graphics.asm"
+    incsrc "data_tables.asm"

@@ -43,40 +43,6 @@ vertical_scroll:
     plp
     rtl 
 
-vertical_scroll_levels:
-    db $02,$01,$02,$02,$02,$01,$02,$02,$02,$02,$02,$02,$02,$02,$01,$02 ; Levels 000-00F
-    db $01,$02,$02,$02,$02,$01,$02,$02,$02,$02,$02,$02,$01,$02,$02,$02 ; Levels 010-01F
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 020-02F
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 030-03F
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 040-04F
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 050-05F
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 060-06F
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 070-07F
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 080-08F
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 090-09F
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 0A0-0AF
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 0B0-0BF
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 0C0-0CF
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$01,$02 ; Levels 0D0-0DF
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$01,$02,$02,$02,$01,$02,$02 ; Levels 0E0-0EF
-    db $02,$02,$01,$02,$02,$01,$01,$02,$02,$01,$02,$02,$02,$02,$01,$02 ; Levels 0F0-0FF
-    db $02,$02,$02,$02,$02,$02,$01,$01,$02,$02,$02,$01,$02,$02,$02,$01 ; Levels 100-10F
-    db $02,$02,$02,$02,$02,$02,$02,$02,$01,$02,$02,$02,$02,$02,$02,$02 ; Levels 110-11F
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 120-12F
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 130-13F
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 140-14F
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 150-15F
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 160-16F
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 170-17F
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 180-18F
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 190-19F
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 1A0-1AF
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 1B0-1BF
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 1C0-1CF
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 1D0-1DF
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02 ; Levels 1E0-1EF
-    db $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$01,$02,$02,$02,$02 ; Levels 1F0-1FF
-
 ;#########################################################################
 ;# Remaps Special World cleared flag to another RAM so it isn't tied
 ;# to Funky's completion
@@ -207,6 +173,184 @@ pullpc
             jml $0093C0
 
 ;#########################################################################
-;# 
+;# Rearranges Yoshi's Message ID to load messages from RAM
+
+pushpc
+    org $05B20F
+        jsr yoshi_ram_message
+    org $05DC60
+        yoshi_ram_message:
+            lda $1426
+            cmp #$03
+            beq .yoshi_message
+            lda $A5B9,y
+            rts 
+        .yoshi_message
+            phx 
+            tyx 
+            lda.l $7EC200,x
+            plx 
+            rts 
+
+    ;# Disable Yoshi showing a message
+    org $01EC3D
+        nop #3
+pullpc
+
+
+;#########################################################################
+;# Makes Bowser throw infinite balls on his second phase if the requirements
+;# aren't met
+
+pushpc
+    org $03A509
+        jml bowser_infinite_balls
+pullpc
+
+bowser_infinite_balls:
+        lda.l goal_setting
+        bne .nope
+        lda $0F48
+        cmp.l required_bosses_setting
+        bcc .nope
+        inc $14B8
+    .nope
+        lda $14B8
+        jml $03A50F
+
+
+;#########################################################################
+;# Level shuffle setup
+
+pushpc
+    ;# Prepare second level table
+    org $06F600
+        shuffled_level_table:
+            fillbyte $00 : fill $0800
+
+    ;# Repoint level load pointer
+    org $05D89B
+        jsl repoint_level_table
+    ;# Repoint midway gate pointer
+    org $048F45
+        jsl repoint_level_table
+    ;# Repoint level name pointer
+    org $048E7A
+        jsl repoint_level_table
+    ;# Repoint another level name pointer
+    org $049542
+        jsl repoint_level_table
+    ;# Repoint level beaten pointer
+    org $048F63
+        jsl repoint_level_table
+
+    org $05D8AE
+        jsl fix_ow_level_check
+        nop #4
+    org $05D7CB
+        jsl fix_ow_level_check
+        nop #4
+
+    org $0392FB
+        jsl fix_snake_blocks
+        nop 
+    
+pullpc
+
+repoint_level_table:
+        lda.l level_shuffle_active
+        beq .nope
+        lda.l shuffled_level_table,x
+        rtl 
+    .nope
+        lda $7ED000,x
+        rtl 
+
+fix_ow_level_check:
+        phx 
+        sep #$30
+        ldx !current_ow_level
+        cpx #$25
+        bcc +
+        ldx #$01
+        bra ++
+    +
+        ldx #$00
+    ++   
+        stx $0F
+        plx 
+        rtl
+
+fix_snake_blocks:
+        lda !current_ow_level
+        cmp #$20
+        beq +
+        lda #$01
+        cmp #$01
+        rtl
+    +   
+        lda #$00
+        cmp #$01
+        rtl 
+
+;#########################################################################
+;# Handle collected paths
+
+pushpc
+    org $009F5B
+        jsl collected_paths
+        nop #2
+pullpc
+
+collected_paths:
+        lda $0100
+        cmp #$0B
+        bne +
+        jsl $04DAAD 
+    +   
+        inc $0100
+        lda $0DAF
+        rtl 
+
+;#########################################################################
+;# Fixes CI2 so people aren't locked out from entering the DC Room at the
+;# end when they posses the DC checks.
+
+pushpc
+    org $05DB3E
+        jml fix_choco_island_2
+pullpc
+
+fix_choco_island_2:
+        lda $1F2F+$04
+        and #$08
+        bne .dc_room
+        lda $1422
+        cmp #$04
+        beq .dc_room
+    .rex_room
+        ldx #$02
+        jml $05DB49
+    .dc_room
+        ldx #$00
+        jml $05DB49
+
 ;#########################################################################
 ;# 
+
+pushpc
+pullpc
+
+
+;#########################################################################
+;# 
+
+pushpc
+pullpc
+
+
+;#########################################################################
+;# 
+
+pushpc
+pullpc

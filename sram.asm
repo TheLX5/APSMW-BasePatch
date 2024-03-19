@@ -1,3 +1,4 @@
+@includefrom "main.asm"
 ;##################################################################################################
 ;# SRAM enhancements
 
@@ -44,12 +45,6 @@ init_sram:
         bpl -
         sep #$10
 
-        lda !received_items_count_sram+$00
-        sta !received_items_count+$00
-        lda !received_items_count_sram+$01
-        sta !received_items_count+$01
-        lda !special_world_clear_sram
-        sta !special_world_clear_flag
         lda !goal_item_count_sram
         sta !goal_item_count
 
@@ -81,9 +76,6 @@ init_sram:
         dex 
         bpl -
 
-        sta !special_world_clear_sram
-        sta !received_items_count_sram+$00
-        sta !received_items_count_sram+$01
         sta !goal_item_count_sram
 
         plx 
@@ -124,13 +116,6 @@ save_sram:
         bpl -
         sep #$10
 
-        lda !special_world_clear_flag
-        sta !special_world_clear_sram
-
-        lda !received_items_count+$00
-        sta !received_items_count_sram+$00
-        lda !received_items_count+$01
-        sta !received_items_count_sram+$01
         lda !goal_item_count
         sta !goal_item_count_sram
 

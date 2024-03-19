@@ -1,6 +1,9 @@
 
 ;# Archipelago settings ROM addreses
 
+goal_setting                = $03BFA0
+required_bosses_setting     = $03BFA1
+required_yoshi_eggs_setting = $03BFA2
 dragon_coin_enabled_flag    = $03BFA6
 moon_enabled_flag           = $03BFA8
 checkpoints_enabled_flag    = $03BFA9
@@ -12,18 +15,24 @@ player_setting              = $03BFAD
 ;# Code & Data locations
 
 !main_code_location = $108000
+!data_location = $118000
 !custom_level_palettes_ptrs = $128000
 !custom_map_palettes_ptrs = $12E000
 !custom_map_palettes = $138000
 !custom_level_palettes = $158000
 
-;# 
+;# Items
 
-!enable_ap_compat = 1
+!ability_byte_1 = $1F1C
+!ability_byte_2 = $1F2D
+
+;# Items
+
 !blocksanity_locs = 582
 
 !current_room       = $010B
 !current_ow_level   = $13BF
+!correct_ow_level   = !current_ow_level
 
 ;# Overworld indicators defines
 
@@ -56,7 +65,7 @@ player_setting              = $03BFAD
 
 ;# Flags
 
-!special_world_clear_flag   = $1FFF
+!special_world_clear_flag   = $1F1E
 !level_clears               = $7FA200
 !bonus_block_flags          = $7FA000
 !blocksanity_flags          = $7FA010
@@ -102,7 +111,7 @@ player_setting              = $03BFAD
 
 ;# Received items
 
-!received_items_count = $7FA00E
+!received_items_count = $1F2B
 
 ;# SRAM definitions
 
@@ -112,8 +121,6 @@ player_setting              = $03BFAD
 !checkpoints_sram           = $700920
 !bonus_block_sram           = $700930
 !blocksanity_sram           = $700940
-!received_items_count_sram  = $700950
-!special_world_clear_sram   = $700952
 !goal_item_count_sram       = $700954
 !blocksanity_data_sram      = $700A00
 

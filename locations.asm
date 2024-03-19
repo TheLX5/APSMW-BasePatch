@@ -144,10 +144,10 @@ blocksanity_check_flags:
     sep #$20
     lda #$00
     xba 
-    lda !current_ow_level
+    lda !correct_ow_level
     lsr #3
     tay 
-    lda !current_ow_level
+    lda !correct_ow_level
     and #$07
     tax 
     lda.l $05B35B,x
