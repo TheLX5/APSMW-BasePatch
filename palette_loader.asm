@@ -5,6 +5,13 @@ includefrom "main.asm"
 ;#########################################################################
 ;# Level palettes handler
 
+!_index = $04
+!_x_span = $06
+!_y_span = $08
+!_ptr = $0A
+!_num = $0E
+!_tileset = $00
+
 pushpc
     org $00ABED
         jml level_palettes
@@ -12,17 +19,17 @@ pushpc
         force_level_original_palette:
             jml level_palettes_original
     org $0093D7
-        jmp force_level_original_palette
+        jsr force_level_original_palette
     org $0094DA
-        jmp force_level_original_palette
+        jsr force_level_original_palette
     org $0095EC
-        jmp force_level_original_palette
+        jsr force_level_original_palette
     org $00965B
-        jmp force_level_original_palette
+        jsr force_level_original_palette
     org $00ADD9
-        jmp force_level_original_palette
+        jsr force_level_original_palette
     org $00AE1F
-        jmp force_level_original_palette
+        jsr force_level_original_palette
 
     ;# Edit color propierties for the filler bush tile
     org $0D8248
@@ -39,13 +46,6 @@ pushpc
     org $00C896
         db $80
 pullpc
-
-!_index = $04
-!_x_span = $06
-!_y_span = $08
-!_ptr = $0A
-!_num = $0E
-!_tileset = $00
 
 level_palettes:
         lda.l level_palette_setting
@@ -358,7 +358,7 @@ macro init_level_group(name)
     !i #= 0
     pullpc
     print "------------------------------------------------"
-    print "Palette group $",hex(!j)," (<name>)"
+    print "Palette group $",hex(!j, 2)," (<name>)"
 endmacro
 
 macro init_map_group(name)
@@ -375,17 +375,17 @@ macro init_map_group(name)
     !i #= 0
     pullpc
     print "------------------------------------------------"
-    print "Palette group $",hex(!j)," (<name>): ", pc
+    print "Palette group $",hex(!j, 2)," (<name>): "
 endmacro
 
 macro load_level_palette_file(filename)
-    print "  <filename>: "
-    print "        Index: $", hex(!i)
-    print "     Location: $", pc
+    print "  <filename> ($", hex(!i, 2), "): "
+    print "    Data location: $", pc
 
     pushpc
         org !custom_level_palettes_ptrs+((!j-1)*128*3)+(!i*3)
             dl <filename>
+            print "     Ptr location: $", pc
         !i #= !i+1
     pullpc
     
@@ -430,13 +430,13 @@ macro load_level_palette_file(filename)
 endmacro
 
 macro load_map_palette_file(filename)
-    print "  <filename>: "
-    print "        Index: $", hex(!i)
-    print "     Location: $", pc
+    print "  <filename> ($", hex(!i, 2), "): "
+    print "    Data location: $", pc
 
     pushpc
         org !custom_map_palettes_ptrs+((!j-1)*128*3)+(!i*3)
             dl <filename>
+            print "     Ptr location: $", pc
         !i #= !i+1
     pullpc
 
