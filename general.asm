@@ -422,11 +422,11 @@ pullpc
 
 pushpc
     org $05B815 ;# MARIO B
-        for i = 0..10
+        for i = 0..16
             db $FC,$38
         endfor 
     org $05B74A ;# MARIO B
-        for i = 0..10
+        for i = 0..16
             db $FC,$38
         endfor 
     
@@ -436,7 +436,7 @@ pushpc
         db $71, $31, $75, $31, $83, $30, $FC, $38
         db $FC, $38, $FC, $38, $FC, $38, $FC, $38
     org $05B76E ;# MARIO C
-        for i = 0..10
+        for i = 0..16
             db $FC,$38
         endfor 
 
