@@ -396,7 +396,7 @@ upload_score_sprite_gfx:
         sta $4322
         phx 
         txy 
-        ldx.b #(.map_targets_end-.map_targets-1)
+        ldx.b #(.map_targets_end-.map_targets-2)
     ..loop
         lda #$0040
         sta $4325
