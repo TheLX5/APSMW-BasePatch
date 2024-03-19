@@ -1,4 +1,4 @@
-@includefrom "main.asm"
+includefrom "main.asm"
 ;##################################################################################################
 ;# This file handles everything related to loading palettes, especifically "curated" palettes.
 
@@ -9,7 +9,20 @@ pushpc
     org $00ABED
         jml level_palettes
     org $00A310
-        jml level_palettes_original
+        force_level_original_palette:
+            jml level_palettes_original
+    org $0093D7
+        jmp force_level_original_palette
+    org $0094DA
+        jmp force_level_original_palette
+    org $0095EC
+        jmp force_level_original_palette
+    org $00965B
+        jmp force_level_original_palette
+    org $00ADD9
+        jmp force_level_original_palette
+    org $00AE1F
+        jmp force_level_original_palette
 
     ;# Edit color propierties for the filler bush tile
     org $0D8248
@@ -17,6 +30,14 @@ pushpc
         db $FE,$04
         db $FE,$04
         db $FE,$04
+
+    ;# Fix title screen changing background colors
+    org $009D30
+        nop #3
+
+    ;# Skips level intros automatically
+    org $00C896
+        db $80
 pullpc
 
 !_index = $04
@@ -27,7 +48,7 @@ pullpc
 !_tileset = $00
 
 level_palettes:
-        lda.l palette_setting
+        lda.l level_palette_setting
         cmp #$02
         beq .custom
     .original
@@ -199,7 +220,9 @@ pushpc
 pullpc
 
 map_palettes:
-        lda 
+        lda.l map_palette_setting
+        cmp #$02
+        beq .custom
     .original
         rep #$30
         ldy #$B3D8
@@ -306,7 +329,7 @@ level_palette_index:
     while !i != 512
         db $00
         !i #= !i+1
-    endif
+    endwhile
 
 map_palette_index:
     print "    map_palette_index: $", pc
@@ -331,9 +354,11 @@ macro init_level_group(name)
             org !custom_level_palettes_ptrs+((!j-1)*128*3)+(!i*3)
                 dl $FFFFFF
             !i #= !i+1
-        endif
+        endwhile
     !i #= 0
     pullpc
+    print "------------------------------------------------"
+    print "Palette group $",hex(!j)," (<name>)"
 endmacro
 
 macro init_map_group(name)
@@ -346,18 +371,24 @@ macro init_map_group(name)
             org !custom_map_palettes_ptrs+((!j-1)*128*3)+(!i*3)
                 dl $FFFFFF
             !i #= !i+1
-        endif
+        endwhile
     !i #= 0
     pullpc
+    print "------------------------------------------------"
+    print "Palette group $",hex(!j)," (<name>): ", pc
 endmacro
 
 macro load_level_palette_file(filename)
+    print "  <filename>: "
+    print "        Index: $", hex(!i)
+    print "     Location: $", pc
+
     pushpc
         org !custom_level_palettes_ptrs+((!j-1)*128*3)+(!i*3)
             dl <filename>
         !i #= !i+1
     pullpc
-
+    
     if !_bank_palette_count == 110
         ;# Move palettes into next bank in order to cross banks
         !custom_level_palettes #= !custom_level_palettes+$10000
@@ -395,10 +426,14 @@ macro load_level_palette_file(filename)
             incbin "!{_path}/<filename>.mw3":$E9*$02..$F0*$02
             incbin "!{_path}/<filename>.mw3":$F9*$02..$100*$02
 
-    !_bank_palette_count = !_bank_palette_count+$01
+    !_bank_palette_count #= !_bank_palette_count+$01
 endmacro
 
 macro load_map_palette_file(filename)
+    print "  <filename>: "
+    print "        Index: $", hex(!i)
+    print "     Location: $", pc
+
     pushpc
         org !custom_map_palettes_ptrs+((!j-1)*128*3)+(!i*3)
             dl <filename>
@@ -438,7 +473,7 @@ macro load_map_palette_file(filename)
             incbin "!{_path}/<filename>.mw3":$E1*$02..($E1+$07)*$02
             incbin "!{_path}/<filename>.mw3":$F1*$02..($F1+$07)*$02
 
-    !_bank_palette_count = !_bank_palette_count+$01
+    !_bank_palette_count #= !_bank_palette_count+$01
 endmacro
 
 incsrc "palette_data.asm"

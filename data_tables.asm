@@ -1,8 +1,6 @@
-@includefrom "main.asm"
+includefrom "main.asm"
 ;##################################################################################################
 ;# This file includes data tables that shouldn't move around
-
-org !data_location
 
 ;#########################################################################
 ;# Vertical scroll settings override for each level

@@ -1,4 +1,4 @@
-@includefrom "main.asm"
+includefrom "main.asm"
 ;##################################################################################################
 ;# This file handles everything regarding player graphics
 

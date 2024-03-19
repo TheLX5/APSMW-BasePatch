@@ -9,8 +9,10 @@ moon_enabled_flag           = $03BFA8
 checkpoints_enabled_flag    = $03BFA9
 bonus_block_enabled_flag    = $03BFAA
 blocksanity_enabled_flag    = $03BFAB
-palette_setting             = $03BFAC
-player_setting              = $03BFAD
+level_palette_setting       = $03BFAC
+map_palette_setting         = $03BFAD
+player_setting              = $03BFAE
+level_shuffle_active        = $03BFB0
 
 ;# Code & Data locations
 
@@ -123,4 +125,14 @@ player_setting              = $03BFAD
 !blocksanity_sram           = $700940
 !goal_item_count_sram       = $700954
 !blocksanity_data_sram      = $700A00
+
+;# 
+
+!score_sprite_num = $16E1
+!score_sprite_y_lo = $16E7
+!score_sprite_x_lo = $16ED
+!score_sprite_x_hi = $16F3
+!score_sprite_y_hi = $16F9
+!score_sprite_timer = $16FF
+!score_sprite_layer = $1705
 

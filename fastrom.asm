@@ -1,4 +1,4 @@
-@includefrom "main.asm"
+includefrom "main.asm"
 ;##################################################################################################
 ;# This file makes the entire game use FastROM addressing
 

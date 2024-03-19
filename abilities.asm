@@ -1,4 +1,4 @@
-@includefrom "main.asm"
+includefrom "main.asm"
 ;##################################################################################################
 ;# This file includes everything that's related to the player's abilities
 
@@ -48,7 +48,6 @@ pushpc
         jsl lock_carry_sprites
     +   
         rts 
-        warnpc $01AA74
     
     org $01F309
         jsl lock_carry_yoshi
@@ -159,7 +158,6 @@ pushpc
         sta $1DFC
         jsl unlocked_spin_jump
         nop 
-        warnpc $00D656
     org $00D656
         +
 
@@ -253,10 +251,10 @@ pushpc
         jsl lock_yoshi
         nop #2
     org $01A2B8
-        jsl lock_baby_yoshi
+        jsl lock_baby_yoshi_block
         nop 
     org $03C05F
-        jsl lock_baby_yoshi
+        jsl lock_baby_yoshi_block
         nop 
 pullpc
 

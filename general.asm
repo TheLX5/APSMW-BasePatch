@@ -1,4 +1,4 @@
-@includefrom "main.asm"
+includefrom "main.asm"
 ;##################################################################################################
 ;# This file includes everything that doesn't fit into another file
 
@@ -100,7 +100,7 @@ pushpc
     org $008FC1
         cpx #$03
 
-    org $008FF0
+    org $008FEF
         sta $0EFE,x
 
     org $008C94
@@ -218,7 +218,6 @@ bowser_infinite_balls:
         lda $14B8
         jml $03A50F
 
-
 ;#########################################################################
 ;# Level shuffle setup
 
@@ -246,10 +245,10 @@ pushpc
 
     org $05D8AE
         jsl fix_ow_level_check
-        nop #4
+        nop #5
     org $05D7CB
         jsl fix_ow_level_check
-        nop #4
+        nop #5
 
     org $0392FB
         jsl fix_snake_blocks
@@ -268,6 +267,7 @@ repoint_level_table:
 
 fix_ow_level_check:
         phx 
+        php 
         sep #$30
         ldx !current_ow_level
         cpx #$25
@@ -278,6 +278,7 @@ fix_ow_level_check:
         ldx #$00
     ++   
         stx $0F
+        plp 
         plx 
         rtl
 
@@ -336,10 +337,161 @@ fix_choco_island_2:
         jml $05DB49
 
 ;#########################################################################
+;# Delete Routine that would copy Mario position data over repurposed Luigi save data
+
+pushpc
+    org $048F9F
+        nop #61
+pullpc
+
+
+;#########################################################################
+;# Repurpose Bonus Stars counter for Boss Token or Yoshi Eggs
+
+pushpc
+    org $07F1AA
+        nop #32
+pullpc
+
+;#########################################################################
+;# Prevent Switch Palaces setting the Switch Palace flags
+
+pushpc
+    org $0DEC9A
+        nop #2
+    org $00EEB1
+        nop #2
+    org $00EEB4
+        nop #3
+pullpc
+
+;#########################################################################
+;# Title Options
+
+pushpc
+    org $009E6A
+        db $01
+    org $009E6C
+        db $01
+    org $009E6E
+        db $01
+pullpc
+
+;#########################################################################
+;# Always allow Start+Select
+
+pushpc
+    org $00A267
+        nop #2
+pullpc
+
+
+;#########################################################################
+;# Move Thwimps tilemap to another spot in VRAM in order to make them global
+
+pushpc
+    org $019C13
+        db $7E,$7E,$7F,$7F
+    org $07F425
+        db $32
+pullpc
+
+;#########################################################################
+;# Mario Start! -> Player Start!
+
+pushpc
+    org $0090D1
+        db $00,$FF,$4D,$4C,$03,$4D,$5D,$FF,$4C,$4B
+        db $4A,$03,$4E,$01,$00,$02,$00,$4a,$4E,$FF
+        
+    org $009139
+        db $34,$30,$34,$34,$34,$34,$34,$30,$34,$34
+        db $34,$34,$34,$34,$34,$34,$34,$34,$34,$30
+
+    org $009105
+        db $10,$FF,$00,$5C,$13,$00,$5D,$FF,$5C,$5B
+        db $00,$13,$5E,$11,$00,$12,$00,$03,$5E,$FF
+
+    org $00916A
+        db $34,$30,$b4,$34,$34,$b4,$f4,$30,$34,$34
+        db $B4,$34,$34,$34,$b4,$34,$b4,$b4,$34,$30
+pullpc
+
+;#########################################################################
+;# Title Screen Text
+
+pushpc
+    org $05B815 ;# MARIO B
+        for i = 0..10
+            db $FC,$38
+        endfor 
+    org $05B74A ;# MARIO B
+        for i = 0..10
+            db $FC,$38
+        endfor 
+    
+    org $05B839 ;# MARIO C
+        db $71, $31, $74, $31, $2D, $31, $84, $30
+        db $82, $30, $6F, $31, $73, $31, $70, $31
+        db $71, $31, $75, $31, $83, $30, $FC, $38
+        db $FC, $38, $FC, $38, $FC, $38, $FC, $38
+    org $05B76E ;# MARIO C
+        for i = 0..10
+            db $FC,$38
+        endfor 
+
+    org $05B79E ;# EMPTY
+        for i = 0..5
+            db $FC,$38
+        endfor 
+    org $05B7AE ;# EMPTY
+        for i = 0..5
+            db $FC,$38
+        endfor 
+
+    org $05B8A8 ;# 2 PLAYER GAME
+        for i = 0..13
+            db $FC,$38
+        endfor 
+
+    org $05B85D ;# ERASE
+        for i = 0..10
+            db $FC,$38
+        endfor 
+
+    org $05B88E ;# 1 Player Game
+        db $2C, $31, $73, $31, $75, $31, $82, $30, $30, $31, $FC, $38, $31, $31, $73, $31
+        db $73, $31, $7C, $30, $FC, $38, $FC, $38, $FC, $38
+    org $05B6D7 ;# Mod by PoryGone + lx5
+        db $16, $38, $18, $38, $0D, $38, $FC, $38, $0B, $38, $22, $38
+        db $FC, $38, $19, $38, $18, $38, $1B, $38, $22, $38, $10, $38, $18, $38, $17, $38
+        db $0E, $38, $FC, $38, $15, $38, $21, $38, $05, $38
+pullpc
+
+
+
+;#########################################################################
+;# Prevent Title Screen Deaths
+
+pushpc
+    org $009C6A
+        db $80
+pullpc
+
+;#########################################################################
+;# Disable something in yoshi house related to the message
+
+pushpc
+    org $05B1D8
+        db $80
+pullpc
+
+;#########################################################################
 ;# 
 
 pushpc
 pullpc
+
 
 
 ;#########################################################################
@@ -347,6 +499,15 @@ pullpc
 
 pushpc
 pullpc
+
+
+
+;#########################################################################
+;# 
+
+pushpc
+pullpc
+
 
 
 ;#########################################################################

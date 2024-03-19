@@ -1,18 +1,20 @@
-@includefrom "main.asm"
+includefrom "palette_loader.asm"
 ;##################################################################################################
 ;# This file includes palette data into the ROM
 ;# Probably not a good idea to mess around a lot with this file
 
 pushpc
+    !i = 0
+    !j = 0
+    !_bank_palette_count = 0
     org !custom_level_palettes
-        !_bank_palette_count #= 0
         ; $00 grass_hills     
             %init_level_group(grass_hills)   
             %load_level_palette_file(original)
         ; $01 grass_forest
             %init_level_group(grass_forest)
-            %load_level_palette_file(original_aqua)   
-            %load_level_palette_file(original_green)   
+            %load_level_palette_file(original_aqua)
+            %load_level_palette_file(original_green)
             %load_level_palette_file(atardecer)   
         ; $02 grass_rocks [tides] (0)
             %init_level_group(grass_rocks)
@@ -132,8 +134,10 @@ pushpc
 pullpc
 
 pushpc
+    !i #= 0
+    !j #= 0
+    !_bank_palette_count #= 0
     org !custom_map_palettes
-        !_bank_palette_count #= 0
         ; $00 Main map
             %init_map_group(main)
             %load_map_palette_file(original)

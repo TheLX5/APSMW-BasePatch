@@ -1,4 +1,4 @@
-@includefrom "main.asm"
+includefrom "main.asm"
 ;##################################################################################################
 ;# This file includes everything that's meant to prepare a way to track locations with ease
 ;# on the Python side.
@@ -158,8 +158,6 @@ blocksanity_check_flags:
 .invalid
     sep #$20
     rts 
-
-incsrc "blocksanity_data.asm"
 
 ;#########################################################################
 ;# Handles prizes from Bonus Blocks

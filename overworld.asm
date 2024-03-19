@@ -1,4 +1,4 @@
-@includefrom "main.asm"
+includefrom "main.asm"
 ;##################################################################################################
 ;# This file includes everything that's meant to edit the overworld map
 
@@ -12,7 +12,7 @@ org $04E5EE
 org $04A300
     check_events:
         phx 
-        jsr get_translevel_num
+        jsl get_translevel_num
         lda $0DD5
         beq .dont_sync
         bmi .dont_sync
@@ -60,7 +60,7 @@ pushpc
                 beq +
                 sta !correct_ow_level
             +   
-                rts 
+                rtl
 
         get_translevel_bit:
                 lda !correct_ow_level
@@ -71,7 +71,7 @@ pushpc
                 lda !correct_ow_level
                 and #$07
                 tax 
-                rts 
+                rtl
 
         update_flag_pointers:
                 inc $00
@@ -83,45 +83,45 @@ pushpc
                 inc $62
                 inc $62
                 inc $63
-                rts 
-warnpc $04A400
+                rtl
 
 
-clear_tilemap:
-        rep #$20
-        lda.w #$3900+!icon_disabled
-        ldx #$1E
-    .loop
-        sta !ow_tilemap_switches,x
-        sta !ow_tilemap_abilities,x
-        sta !ow_tilemap_flags_top,x
-        sta !ow_tilemap_flags_mid,x
-        sta !ow_tilemap_flags_bot,x
-        dex #2
-        bpl .loop 
-        sep #$20
-        lda #$07
-        sta $63
-        asl 
-        sta $62
-        rtl 
-    
-clear_tilemap_flags:
-        rep #$20
-        lda.w #$3900+!icon_disabled
-        ldx.b #($07*2)-2
-    .loop
-        sta !ow_tilemap_flags_top,x
-        sta !ow_tilemap_flags_mid,x
-        sta !ow_tilemap_flags_bot,x
-        dex #2
-        bpl .loop 
-        sep #$20
-        lda #$06
-        sta $63
-        asl 
-        sta $62
-        rtl 
+        clear_tilemap:
+                rep #$20
+                lda.w #$3900+!icon_disabled
+                ldx #$1E
+            .loop
+                sta !ow_tilemap_switches,x
+                sta !ow_tilemap_abilities,x
+                sta !ow_tilemap_flags_top,x
+                sta !ow_tilemap_flags_mid,x
+                sta !ow_tilemap_flags_bot,x
+                dex #2
+                bpl .loop 
+                sep #$20
+                lda #$07
+                sta $63
+                asl 
+                sta $62
+                rtl 
+            
+        clear_tilemap_flags:
+                rep #$20
+                lda.w #$3900+!icon_disabled
+                ldx.b #($07*2)-2
+            .loop
+                sta !ow_tilemap_flags_top,x
+                sta !ow_tilemap_flags_mid,x
+                sta !ow_tilemap_flags_bot,x
+                dex #2
+                bpl .loop 
+                sep #$20
+                lda #$06
+                sta $63
+                asl 
+                sta $62
+                rtl 
+pullpc
 
 ;#########################################################################
 ;# Prepare dynamic tilemap
@@ -136,7 +136,7 @@ prepare_dynamic_tilemap:
 
     .handle_powerup:
         ldy #$22
-        lda $1F2D
+        lda !ability_byte_2
         lsr 
         bcc $01
         iny 
@@ -151,7 +151,7 @@ prepare_dynamic_tilemap:
 
     .handle_spinjump:
         ldy #!icon_not_obtained
-        lda $1F2C
+        lda !ability_byte_1
         and #$08
         beq $02
         ldy #!icon_obtained
@@ -160,7 +160,7 @@ prepare_dynamic_tilemap:
 
     .handle_run:
         ldy.b #!icon_not_obtained
-        lda $1F2C
+        lda !ability_byte_1
         and #$80
         beq $02
         ldy.b #!icon_obtained
@@ -169,7 +169,7 @@ prepare_dynamic_tilemap:
 
     .handle_carry:
         ldy.b #!icon_not_obtained
-        lda $1F2C
+        lda !ability_byte_1
         and #$40
         beq $02
         ldy.b #!icon_obtained
@@ -178,7 +178,7 @@ prepare_dynamic_tilemap:
 
     .handle_swim:
         ldy.b #!icon_not_obtained
-        lda $1F2C
+        lda !ability_byte_1
         and #$04
         beq $02
         ldy.b #!icon_obtained
@@ -187,7 +187,7 @@ prepare_dynamic_tilemap:
 
     .handle_climb:
         ldy.b #!icon_not_obtained
-        lda $1F2C
+        lda !ability_byte_1
         and #$20
         beq $02
         ldy.b #!icon_obtained
@@ -196,7 +196,7 @@ prepare_dynamic_tilemap:
 
     .handle_yoshi:
         ldy.b #!icon_not_obtained
-        lda $1F2C
+        lda !ability_byte_1
         and #$02
         beq $02
         ldy.b #!icon_obtained
@@ -205,7 +205,7 @@ prepare_dynamic_tilemap:
 
     .handle_pswitch:
         ldy.b #!icon_not_obtained
-        lda $1F2C
+        lda !ability_byte_1
         and #$10
         beq $02
         ldy.b #!icon_obtained
@@ -214,7 +214,7 @@ prepare_dynamic_tilemap:
 
     .handle_pballoon:
         ldy.b #!icon_not_obtained
-        lda $1F2D
+        lda !ability_byte_2
         and #$08
         beq $02
         ldy.b #!icon_obtained
@@ -223,7 +223,7 @@ prepare_dynamic_tilemap:
 
     .handle_star:
         ldy.b #!icon_not_obtained
-        lda $1F2D
+        lda !ability_byte_2
         and #$10
         beq $02
         ldy.b #!icon_obtained
@@ -275,7 +275,7 @@ prepare_dynamic_tilemap:
         rtl
 
 process_level:
-        jsr get_translevel_num
+        jsl get_translevel_num
         ldx !correct_ow_level
         lda.l map_indicator_data,x
         bpl .handle_data
@@ -307,7 +307,7 @@ handle_blocksanity:
         beq .dont_draw
         ldy.b #!icon_not_obtained
         phy 
-        jsr get_translevel_bit
+        jsl get_translevel_bit
         phx 
         tyx 
         lda.l !blocksanity_flags,x
@@ -323,7 +323,7 @@ handle_blocksanity:
         sta [$00]
         lda #$12
         sta [$03]
-        jsr update_flag_pointers
+        jsl update_flag_pointers
     .dont_draw
 
 handle_bonus_blocks:
@@ -336,7 +336,7 @@ handle_bonus_blocks:
         beq .dont_draw
         ldy.b #!icon_not_obtained
         phy 
-        jsr get_translevel_bit
+        jsl get_translevel_bit
         phx 
         tyx 
         lda !bonus_block_flags,x
@@ -352,7 +352,7 @@ handle_bonus_blocks:
         sta [$00]
         lda #$4E
         sta [$03]
-        jsr update_flag_pointers
+        jsl update_flag_pointers
     .dont_draw
 
 
@@ -365,7 +365,7 @@ handle_checkpoints:
         beq .dont_draw
         ldy.b #!icon_not_obtained
         phy 
-        jsr get_translevel_bit
+        jsl get_translevel_bit
         lda !checkpoints_flags,y
         ply 
         and.l $0DA8A6,x
@@ -378,7 +378,7 @@ handle_checkpoints:
         sta [$00]
         lda #$47
         sta [$03]
-        jsr update_flag_pointers
+        jsl update_flag_pointers
     .dont_draw
     
 handle_moons:
@@ -390,7 +390,7 @@ handle_moons:
         beq .dont_draw
         ldy.b #!icon_not_obtained
         phy 
-        jsr get_translevel_bit
+        jsl get_translevel_bit
         lda !moons_flags,y
         ply 
         and.l $0DA8A6,x
@@ -403,7 +403,7 @@ handle_moons:
         sta [$00]
         lda #$4E
         sta [$03]
-        jsr update_flag_pointers
+        jsl update_flag_pointers
     .dont_draw
 
 handle_dragon_coins:
@@ -415,7 +415,7 @@ handle_dragon_coins:
         beq .dont_draw
         ldy.b #!icon_not_obtained
         phy 
-        jsr get_translevel_bit
+        jsl get_translevel_bit
         lda !yoshi_coins_flags,y
         ply 
         and.l $0DA8A6,x
@@ -428,7 +428,7 @@ handle_dragon_coins:
         sta [$00]
         lda #$02
         sta [$03]
-        jsr update_flag_pointers
+        jsl update_flag_pointers
     .dont_draw
 
 
@@ -450,7 +450,7 @@ handle_exit_2:
         sta [$00]
         lda #$24
         sta [$03]
-        jsr update_flag_pointers
+        jsl update_flag_pointers
     .dont_draw
 
 handle_exit_1:
@@ -470,7 +470,7 @@ handle_exit_1:
         sta [$00]
         lda #$23
         sta [$03]
-        jsr update_flag_pointers
+        jsl update_flag_pointers
     .dont_draw
         rtl 
 
@@ -478,8 +478,8 @@ handle_exit_1:
 ;# Draw tilemap
 
 pushpc
-org $008222
-    jml draw_ow_tilemap
+    org $008222
+        jml draw_ow_tilemap
 pullpc
 
 draw_ow_tilemap:
