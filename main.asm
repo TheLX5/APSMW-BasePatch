@@ -64,7 +64,7 @@ org $1FFFFF
 
 
 org !data_location
-    incsrc "data_tables.asm"
+    incsrc "data/data_tables.asm"
 
 org !custom_level_palettes_ptrs
     level_palette_pointers:
@@ -73,13 +73,13 @@ org !custom_map_palettes_ptrs
     map_palette_pointers:
     
 org !main_code_location
-    incsrc "fastrom.asm"
-    incsrc "sram.asm"
-    incsrc "general.asm"
-    incsrc "overworld.asm"
-    incsrc "locations.asm"
-    incsrc "abilities.asm"
-    incsrc "traps.asm"
-    incsrc "palette_loader.asm"
-    incsrc "score_sprites.asm"
-    incsrc "graphics.asm"
+    incsrc "code/fastrom.asm"
+    incsrc "code/sram.asm"
+    incsrc "code/general.asm"
+    incsrc "code/overworld.asm"
+    incsrc "code/locations.asm"
+    incsrc "code/abilities.asm"
+    incsrc "code/traps.asm"
+    incsrc "code/palette_loader.asm"
+    incsrc "code/score_sprites.asm"
+    incsrc "code/graphics.asm"

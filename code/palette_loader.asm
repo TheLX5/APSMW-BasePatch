@@ -345,10 +345,10 @@ map_palette_index:
 ;# Include palettes
 
 macro init_level_group(name)
-    !_path = "palettes/level/<name>"
+    !_path = "../data/palettes/level/<name>"
     pushpc
     !j #= !j+1
-    namespace <name>
+    namespace level_<name>
         !i #= 0
         while !i != 128
             org !custom_level_palettes_ptrs+((!j-1)*128*3)+(!i*3)
@@ -362,10 +362,10 @@ macro init_level_group(name)
 endmacro
 
 macro init_map_group(name)
-    !_path = "palettes/map/<name>"
+    !_path = "../data/palettes/map/<name>"
     pushpc
     !j #= !j+1
-    namespace <name>
+    namespace map_<name>
         !i #= 0
         while !i != 128
             org !custom_map_palettes_ptrs+((!j-1)*128*3)+(!i*3)
@@ -380,6 +380,14 @@ endmacro
 
 macro load_level_palette_file(filename)
     print "  <filename> ($", hex(!i, 2), "): "
+
+    if !_bank_palette_count == 110
+        ;# Move palettes into next bank in order to cross banks
+        !custom_level_palettes #= !custom_level_palettes+$10000
+        !_bank_palette_count #= 0
+        org !custom_level_palettes
+    endif
+
     print "    Data location: $", pc
 
     pushpc
@@ -389,12 +397,6 @@ macro load_level_palette_file(filename)
         !i #= !i+1
     pullpc
     
-    if !_bank_palette_count == 110
-        ;# Move palettes into next bank in order to cross banks
-        !custom_level_palettes #= !custom_level_palettes+$10000
-        !_bank_palette_count #= 0
-        org !custom_level_palettes
-    endif
 
     <filename>:
         .back_color
@@ -431,6 +433,14 @@ endmacro
 
 macro load_map_palette_file(filename)
     print "  <filename> ($", hex(!i, 2), "): "
+
+    if !_bank_palette_count == 113
+        ;# Move palettes into next bank in order to cross banks
+        !custom_map_palettes #= !custom_map_palettes+$10000
+        !_bank_palette_count #= 0
+        org !custom_map_palettes
+    endif
+    
     print "    Data location: $", pc
 
     pushpc
@@ -439,13 +449,6 @@ macro load_map_palette_file(filename)
             print "     Ptr location: $", pc
         !i #= !i+1
     pullpc
-
-    if !_bank_palette_count == 113
-        ;# Move palettes into next bank in order to cross banks
-        !custom_map_palettes #= !custom_map_palettes+$10000
-        !_bank_palette_count #= 0
-        org !custom_map_palettes
-    endif
 
     <filename>:
         .layer_2
@@ -476,4 +479,4 @@ macro load_map_palette_file(filename)
     !_bank_palette_count #= !_bank_palette_count+$01
 endmacro
 
-incsrc "palette_data.asm"
+incsrc "../data/palette_data.asm"
