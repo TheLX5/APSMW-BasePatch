@@ -234,13 +234,15 @@ map_palettes:
         and #$000F
         dec 
         tax 
+        xba 
+        sta !_num
         lda.l map_palette_index,x
         and #$00FF
+        ora !_num
         sta !_ptr
         asl 
         clc 
         adc !_ptr
-        sta !_num
         tax 
         lda.l map_palette_pointers,x
         sta !_ptr
@@ -307,8 +309,10 @@ palette_upload_edit:
         cmp #$0A
         bne .regular
         lda $1DE8
-        cmp #$05
+        cmp #$06
         bne .regular
+        stz $0703
+        stz $0704
         stz $2121
         ldx #$06
     .loop
@@ -326,39 +330,39 @@ palette_upload_edit:
 macro init_level_group(name)
     !_path = "../data/palettes/level/<name>"
     pushpc
+    print "------------------------------------------------"
+    print "Palette group $",hex(!j, 2)," (<name>)"
     !j #= !j+1
     namespace level_<name>
         !i #= 0
-        while !i != 128
-            org !custom_level_palettes_ptrs+((!j-1)*128*3)+(!i*3)
+        while !i != 256
+            org !custom_level_palettes_ptrs+((!j-1)*256*3)+(!i*3)
                 dl $FFFFFF
             !i #= !i+1
         endwhile
     !i #= 0
     pullpc
-    print "------------------------------------------------"
-    print "Palette group $",hex(!j, 2)," (<name>)"
 endmacro
 
 macro init_map_group(name)
     !_path = "../data/palettes/map/<name>"
     pushpc
+    print "------------------------------------------------"
+    print "Palette group $",hex(!j, 2)," (<name>): "
     !j #= !j+1
     namespace map_<name>
         !i #= 0
-        while !i != 128
-            org !custom_map_palettes_ptrs+((!j-1)*128*3)+(!i*3)
+        while !i != 256
+            org !custom_map_palettes_ptrs+((!j-1)*256*3)+(!i*3)
                 dl $FFFFFF
             !i #= !i+1
         endwhile
     !i #= 0
     pullpc
-    print "------------------------------------------------"
-    print "Palette group $",hex(!j, 2)," (<name>): "
 endmacro
 
 macro load_level_palette_file(filename)
-    print "  <filename> ($", hex(!i, 2), "): "
+    print "  $", hex(!i, 2), " <filename>: "
 
     if !_bank_palette_count == 110
         ;# Move palettes into next bank in order to cross banks
@@ -370,7 +374,7 @@ macro load_level_palette_file(filename)
     print "    Data location: $", pc
 
     pushpc
-        org !custom_level_palettes_ptrs+((!j-1)*128*3)+(!i*3)
+        org !custom_level_palettes_ptrs+((!j-1)*256*3)+(!i*3)
             dl <filename>
             print "     Ptr location: $", pc
         !i #= !i+1
@@ -411,7 +415,7 @@ macro load_level_palette_file(filename)
 endmacro
 
 macro load_map_palette_file(filename)
-    print "  <filename> ($", hex(!i, 2), "): "
+    print "  $", hex(!i, 2), " <filename>: "
 
     if !_bank_palette_count == 113
         ;# Move palettes into next bank in order to cross banks
@@ -423,39 +427,43 @@ macro load_map_palette_file(filename)
     print "    Data location: $", pc
 
     pushpc
-        org !custom_map_palettes_ptrs+((!j-1)*128*3)+(!i*3)
+        org !custom_map_palettes_ptrs+((!j-1)*256*3)+(!i*3)
             dl <filename>
             print "     Ptr location: $", pc
         !i #= !i+1
     pullpc
 
     <filename>:
+        .back_color
+            incbin "!{_path}/<filename>.mw3":$100*$02..$101*$02
         .layer_2
-            incbin "!{_path}/<filename>.mw3":$41*$02..($41+$07)*$02
-            incbin "!{_path}/<filename>.mw3":$51*$02..($51+$07)*$02
-            incbin "!{_path}/<filename>.mw3":$61*$02..($61+$07)*$02
-            incbin "!{_path}/<filename>.mw3":$71*$02..($71+$07)*$02
+            incbin "!{_path}/<filename>.mw3":$41*$02..$48*$02
+            incbin "!{_path}/<filename>.mw3":$51*$02..$58*$02
+            incbin "!{_path}/<filename>.mw3":$61*$02..$68*$02
+            incbin "!{_path}/<filename>.mw3":$71*$02..$78*$02
         .layer_1
-            incbin "!{_path}/<filename>.mw3":$29*$02..($29+$07)*$02
-            incbin "!{_path}/<filename>.mw3":$39*$02..($39+$07)*$02
-            incbin "!{_path}/<filename>.mw3":$49*$02..($49+$07)*$02
-            incbin "!{_path}/<filename>.mw3":$59*$02..($59+$07)*$02
-            incbin "!{_path}/<filename>.mw3":$69*$02..($69+$07)*$02
-            incbin "!{_path}/<filename>.mw3":$79*$02..($79+$07)*$02
+            incbin "!{_path}/<filename>.mw3":$29*$02..$30*$02
+            incbin "!{_path}/<filename>.mw3":$39*$02..$40*$02
+            incbin "!{_path}/<filename>.mw3":$49*$02..$50*$02
+            incbin "!{_path}/<filename>.mw3":$59*$02..$60*$02
+            incbin "!{_path}/<filename>.mw3":$69*$02..$70*$02
+            incbin "!{_path}/<filename>.mw3":$79*$02..$80*$02
         .layer_3
-            incbin "!{_path}/<filename>.mw3":$08*$02..($08+$08)*$02
-            incbin "!{_path}/<filename>.mw3":$18*$02..($18+$08)*$02
+            incbin "!{_path}/<filename>.mw3":$08*$02..$10*$02
+            incbin "!{_path}/<filename>.mw3":$18*$02..$20*$02
         .sprite
-            incbin "!{_path}/<filename>.mw3":$81*$02..($81+$07)*$02
-            incbin "!{_path}/<filename>.mw3":$91*$02..($91+$07)*$02
-            incbin "!{_path}/<filename>.mw3":$A1*$02..($A1+$07)*$02
-            incbin "!{_path}/<filename>.mw3":$B1*$02..($B1+$07)*$02
-            incbin "!{_path}/<filename>.mw3":$C1*$02..($C1+$07)*$02
-            incbin "!{_path}/<filename>.mw3":$D1*$02..($D1+$07)*$02
-            incbin "!{_path}/<filename>.mw3":$E1*$02..($E1+$07)*$02
-            incbin "!{_path}/<filename>.mw3":$F1*$02..($F1+$07)*$02
+            incbin "!{_path}/<filename>.mw3":$81*$02..$88*$02
+            incbin "!{_path}/<filename>.mw3":$91*$02..$98*$02
+            incbin "!{_path}/<filename>.mw3":$A1*$02..$A8*$02
+            incbin "!{_path}/<filename>.mw3":$B1*$02..$B8*$02
+            incbin "!{_path}/<filename>.mw3":$C1*$02..$C8*$02
+            incbin "!{_path}/<filename>.mw3":$D1*$02..$D8*$02
+            incbin "!{_path}/<filename>.mw3":$E1*$02..$E8*$02
+            incbin "!{_path}/<filename>.mw3":$F1*$02..$F8*$02
 
     !_bank_palette_count #= !_bank_palette_count+$01
 endmacro
 
 incsrc "../data/palette_data.asm"
+
+namespace off 
