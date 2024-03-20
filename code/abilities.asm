@@ -153,7 +153,7 @@ pushpc
         lda !ability_byte_1
         and #$08
         beq +
-        print "   Spin Jump SFX Call: ", pc
+        print "   Spin Jump SFX Call: $", pc
         lda #$04
         sta $1DFC
         jsl unlocked_spin_jump

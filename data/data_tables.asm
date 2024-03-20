@@ -6,7 +6,7 @@ includefrom "main.asm"
 ;# Palette Indexes
 
 level_palette_index:
-    print "    level_palette_index: $", pc
+    print "  level_palette_index: $", pc
     !i #= 0
     while !i != 512
         db $00

@@ -330,8 +330,12 @@ palette_upload_edit:
 macro init_level_group(name)
     !_path = "../data/palettes/level/<name>"
     pushpc
-    print "------------------------------------------------"
-    print "Palette group $",hex(!j, 2)," (<name>)"
+    
+    if !print_palette_info == 1
+        print "------------------------------------------------"
+        print "Palette group $",hex(!j, 2)," (<name>)"
+    endif
+
     !j #= !j+1
     namespace level_<name>
         !i #= 0
@@ -347,8 +351,12 @@ endmacro
 macro init_map_group(name)
     !_path = "../data/palettes/map/<name>"
     pushpc
-    print "------------------------------------------------"
-    print "Palette group $",hex(!j, 2)," (<name>): "
+
+    if !print_palette_info == 1
+        print "------------------------------------------------"
+        print "Palette group $",hex(!j, 2)," (<name>)"
+    endif
+
     !j #= !j+1
     namespace map_<name>
         !i #= 0
@@ -362,7 +370,9 @@ macro init_map_group(name)
 endmacro
 
 macro load_level_palette_file(filename)
-    print "  $", hex(!i, 2), " <filename>: "
+    if !print_palette_info == 1
+        print "  $", hex(!i, 2), " <filename>: "
+    endif
 
     if !_bank_palette_count == 110
         ;# Move palettes into next bank in order to cross banks
@@ -371,12 +381,16 @@ macro load_level_palette_file(filename)
         org !custom_level_palettes
     endif
 
-    print "    Data location: $", pc
+    if !print_palette_info == 1
+        print "    Data location: $", pc
+    endif
 
     pushpc
         org !custom_level_palettes_ptrs+((!j-1)*256*3)+(!i*3)
             dl <filename>
-            print "     Ptr location: $", pc
+            if !print_palette_info == 1
+                print "     Ptr location: $", pc
+            endif
         !i #= !i+1
     pullpc
     
@@ -415,7 +429,9 @@ macro load_level_palette_file(filename)
 endmacro
 
 macro load_map_palette_file(filename)
-    print "  $", hex(!i, 2), " <filename>: "
+    if !print_palette_info == 1
+        print "  $", hex(!i, 2), " <filename>: "
+    endif
 
     if !_bank_palette_count == 113
         ;# Move palettes into next bank in order to cross banks
@@ -424,12 +440,16 @@ macro load_map_palette_file(filename)
         org !custom_map_palettes
     endif
     
-    print "    Data location: $", pc
+    if !print_palette_info == 1
+        print "    Data location: $", pc
+    endif
 
     pushpc
         org !custom_map_palettes_ptrs+((!j-1)*256*3)+(!i*3)
             dl <filename>
-            print "     Ptr location: $", pc
+            if !print_palette_info == 1
+                print "     Ptr location: $", pc
+            endif
         !i #= !i+1
     pullpc
 
