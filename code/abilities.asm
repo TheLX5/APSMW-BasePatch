@@ -46,8 +46,8 @@ pushpc
         and #$40
         beq +
         jsl lock_carry_sprites
+        nop #2
     +   
-        rts 
     
     org $01F309
         jsl lock_carry_yoshi
@@ -218,6 +218,7 @@ lock_swim:
     +   
         jml $00DA2D
     .not_unlocked
+        pla 
         cmp $DEBE,x
         bcs +
         lda $DEBE,x
@@ -315,7 +316,7 @@ lock_mushroom:
         inc $19
     .not_unlocked
         lda #$00
-        sta $72
+        sta $71
         stz $9D
         rtl 
 
@@ -334,7 +335,7 @@ flower_palette_cycle:
         dec $149B
         beq +
         lda #$00
-        sta $72
+        sta $71
         stz $9D
     +
         rtl 
@@ -370,7 +371,7 @@ cape_transform:
         rtl 
     +   
         lda #$00
-        sta $72
+        sta $71
         stz $9D 
         rtl
 
@@ -395,7 +396,7 @@ pullpc
 taking_damage:
         sta $1497
         lda #$00
-        sta $72
+        sta $71
         stz $9D
         rtl 
 
@@ -411,7 +412,7 @@ pullpc
 pipe_exit:
         stz $1419
         lda #$00
-        sta $72
+        sta $71
         stz $9D 
         rtl 
 
