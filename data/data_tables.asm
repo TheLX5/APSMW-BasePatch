@@ -3,6 +3,27 @@ includefrom "main.asm"
 ;# This file includes data tables that shouldn't move around
 
 ;#########################################################################
+;# Palette Indexes
+
+level_palette_index:
+    print "    level_palette_index: $", pc
+    !i #= 0
+    while !i != 512
+        db $00
+        !i #= !i+1
+    endwhile
+
+map_palette_index:
+    print "    map_palette_index: $", pc
+    db $00      ; Main map
+    db $00      ; Yoshi's Island
+    db $00      ; Vanilla Dome
+    db $00      ; Forest of Illusion
+    db $00      ; Valley of Bowser
+    db $00      ; Special World
+    db $00      ; Star World
+
+;#########################################################################
 ;# Vertical scroll settings override for each level
 
 vertical_scroll_levels:

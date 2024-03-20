@@ -321,27 +321,6 @@ palette_upload_edit:
         jml $00A4CF
 
 ;#########################################################################
-;# Indexes
-
-level_palette_index:
-    print "    level_palette_index: $", pc
-    !i #= 0
-    while !i != 512
-        db $00
-        !i #= !i+1
-    endwhile
-
-map_palette_index:
-    print "    map_palette_index: $", pc
-    db $00      ; Main map
-    db $00      ; Yoshi's Island
-    db $00      ; Vanilla Dome
-    db $00      ; Forest of Illusion
-    db $00      ; Valley of Bowser
-    db $00      ; Special World
-    db $00      ; Star World
-
-;#########################################################################
 ;# Include palettes
 
 macro init_level_group(name)
