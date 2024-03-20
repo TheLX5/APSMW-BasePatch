@@ -401,11 +401,11 @@ upload_score_sprite_gfx:
         lda #$0040
         sta $4325
         lda.l .map_targets,x
-        clc 
-        adc #$0100
         sta $2116
         sty $420B
         lda.l .map_targets,x
+        clc 
+        adc #$0100
         sta $2116
         lda #$0040
         sta $4325
