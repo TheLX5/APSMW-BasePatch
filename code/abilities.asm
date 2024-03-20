@@ -42,12 +42,7 @@ pushpc
     +   
 
     org $01AA66
-        lda !ability_byte_1
-        and #$40
-        beq +
-        jsl lock_carry_sprites
-        nop #2
-    +   
+        jml lock_carry_sprites
     
     org $01F309
         jsl lock_carry_yoshi
@@ -76,12 +71,17 @@ lock_carry_springboard:
         rtl 
 
 lock_carry_sprites:
+        lda !ability_byte_1
+        and #$40
+        beq +
         lda #$0B
         sta $14C8,x
         inc $1470
         lda #$08
         sta $1498
-        rtl
+        jml $01AA73
+    +   
+        jml $01AA74
 
 lock_carry_yoshi:
         lda !ability_byte_1
