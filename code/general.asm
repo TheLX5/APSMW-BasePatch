@@ -100,22 +100,13 @@ pushpc
     org $008FC1
         cpx #$03
 
+    ; # Move Dragon coins one spot to the left & fix tilemap
     org $008FEF
         sta $0EFE,x
-
     org $008C94
         db $3C
     org $008C9C
         db $38
-
-    org $008C93
-        db $FC,$38 ; $008C93
-        db $FC,$3C ; $008C95
-        db $FC,$3C ; $008C97
-        db $FC,$3C ; $008C99
-        db $FC,$3C ; $008C9B
-        db $FC,$38 ; $008C9D
-        db $FC,$38 ; $008C9F
 
 pullpc
 
