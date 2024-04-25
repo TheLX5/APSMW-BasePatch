@@ -76,7 +76,7 @@ process_block:
     trb $9A
 
     rep #$30
-    lda !randomized_ow_level
+    lda !shuffled_ow_level
     and #$00FF
     asl 
     clc 
@@ -144,10 +144,10 @@ blocksanity_check_flags:
     sep #$20
     lda #$00
     xba 
-    lda !correct_ow_level
+    lda !shuffled_ow_level
     lsr #3
     tay 
-    lda !correct_ow_level
+    lda !shuffled_ow_level
     and #$07
     tax 
     lda.l $05B35B,x

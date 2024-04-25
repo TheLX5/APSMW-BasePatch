@@ -1,3 +1,6 @@
+;# Print options
+
+!print_palette_info = 0
 
 ;# Archipelago settings ROM addreses
 
@@ -34,7 +37,7 @@ level_shuffle_active        = $03BFB0
 
 !current_room       = $010B
 !current_ow_level   = $13BF
-!correct_ow_level   = !current_ow_level
+!shuffled_ow_level  = $010D
 
 ;# Overworld indicators defines
 

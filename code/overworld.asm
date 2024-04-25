@@ -21,7 +21,7 @@ org $04A300
         and #$07
         tax 
         lda.l $009E7D,x
-        ldx !correct_ow_level
+        ldx !shuffled_ow_level
         ora !level_clears,x
         sta !level_clears,x
     .dont_sync
@@ -53,22 +53,22 @@ pushpc
                 ldx $04
                 lda $7ED000,x
                 sep #$30
-                sta !correct_ow_level
+                sta !shuffled_ow_level
                 tax 
                 lda $06FF00,x
                 cmp #$FF
                 beq +
-                sta !correct_ow_level
+                sta !shuffled_ow_level
             +   
                 rtl
 
         get_translevel_bit:
-                lda !correct_ow_level
+                lda !shuffled_ow_level
                 lsr 
                 lsr 
                 lsr 
                 tay 
-                lda !correct_ow_level
+                lda !shuffled_ow_level
                 and #$07
                 tax 
                 rtl
@@ -276,7 +276,7 @@ prepare_dynamic_tilemap:
 
 process_level:
         jsl get_translevel_num
-        ldx !correct_ow_level
+        ldx !shuffled_ow_level
         lda.l map_indicator_data,x
         bpl .handle_data
         rtl 
@@ -300,7 +300,7 @@ process_level:
 handle_blocksanity:
         lda.l blocksanity_enabled_flag
         beq .dont_draw
-        ldx !correct_ow_level
+        ldx !shuffled_ow_level
         ldy.b #!icon_disabled
         lda.l map_indicator_data,x
         and #$40
@@ -329,7 +329,7 @@ handle_blocksanity:
 handle_bonus_blocks:
         lda.l bonus_block_enabled_flag
         beq .dont_draw
-        ldx !correct_ow_level
+        ldx !shuffled_ow_level
         ldy.b #!icon_disabled
         lda.l map_indicator_data,x
         and #$20
@@ -359,7 +359,7 @@ handle_bonus_blocks:
 handle_checkpoints:
         lda.l checkpoints_enabled_flag
         beq .dont_draw
-        ldx !correct_ow_level
+        ldx !shuffled_ow_level
         lda.l map_indicator_data,x
         and #$10
         beq .dont_draw
@@ -384,7 +384,7 @@ handle_checkpoints:
 handle_moons:
         lda.l moon_enabled_flag
         beq .dont_draw
-        ldx !correct_ow_level
+        ldx !shuffled_ow_level
         lda.l map_indicator_data,x
         and #$08
         beq .dont_draw
@@ -409,7 +409,7 @@ handle_moons:
 handle_dragon_coins:
         lda.l dragon_coin_enabled_flag
         beq .dont_draw
-        ldx !correct_ow_level
+        ldx !shuffled_ow_level
         lda.l map_indicator_data,x
         and #$04
         beq .dont_draw
@@ -434,7 +434,7 @@ handle_dragon_coins:
 
 
 handle_exit_2:
-        ldx !correct_ow_level
+        ldx !shuffled_ow_level
         lda.l map_indicator_data,x
         and #$02
         beq .dont_draw
@@ -454,7 +454,7 @@ handle_exit_2:
     .dont_draw
 
 handle_exit_1:
-        ldx !correct_ow_level
+        ldx !shuffled_ow_level
         lda.l map_indicator_data,x
         and #$01
         beq .dont_draw

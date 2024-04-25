@@ -32,11 +32,12 @@ pushpc
         jsr force_level_original_palette
 
     ;# Edit color propierties for the filler bush tile
-    org $0D8248
-        db $FE,$04
-        db $FE,$04
-        db $FE,$04
-        db $FE,$04
+    ;# Handled by the apworld
+    ;#org $0D8248
+    ;#    db $FE,$04
+    ;#    db $FE,$04
+    ;#    db $FE,$04
+    ;#    db $FE,$04
 
     ;# Fix title screen changing background colors
     org $009D30
