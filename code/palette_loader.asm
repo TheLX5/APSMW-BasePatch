@@ -189,7 +189,7 @@ level_palette_tilesets:
     db $FF,$FF,$FF,$12,$12,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF      ; Levels 090-09F
     db $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF      ; Levels 0A0-0AF
     db $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$19,$08,$09      ; Levels 0B0-0BF
-    db $02,$08,$05,$04,$16,$00,$04,$02,$0C,$19,$19,$09,$FF,$02,$02,$02      ; Levels 0C0-0CF
+    db $02,$08,$05,$04,$16,$1A,$04,$02,$0C,$19,$19,$09,$FF,$02,$02,$02      ; Levels 0C0-0CF
     db $04,$04,$05,$12,$14,$FF,$12,$10,$05,$FF,$19,$12,$14,$0F,$15,$FF      ; Levels 0D0-0DF
     db $12,$12,$FF,$04,$15,$FF,$19,$14,$12,$05,$05,$16,$15,$15,$15,$12      ; Levels 0E0-0EF
     db $16,$15,$15,$09,$19,$04,$04,$13,$18,$15,$15,$16,$15,$19,$15,$04      ; Levels 0F0-0FF
