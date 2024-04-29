@@ -7,6 +7,8 @@ pushpc
         jml init_sram
     org $009C0F
         jml save_sram
+    org $00FFD8
+        db $02
 pullpc
 
 init_sram:
