@@ -14,41 +14,6 @@ incsrc "defines.asm"
 ;#########################################################################
 ;# AP Settings defaults
 
-org goal_setting
-    db 0
-
-org required_bosses_setting
-    db 7
-
-org required_yoshi_eggs_setting
-    db 50
-
-org dragon_coin_enabled_flag
-    db 0
-
-org moon_enabled_flag
-    db 0
-
-org checkpoints_enabled_flag
-    db 0
-
-org bonus_block_enabled_flag
-    db 0
-
-org blocksanity_enabled_flag
-    db 0
-
-org level_palette_setting
-    db 0
-
-org map_palette_setting
-    db 0
-
-org player_setting
-    db 0
-
-org level_shuffle_active
-    db 0
 
 ;#########################################################################
 ;# ROM expansion
@@ -80,6 +45,7 @@ org !main_code_location
     incsrc "code/locations.asm"
     incsrc "code/abilities.asm"
     incsrc "code/traps.asm"
+    incsrc "code/level.asm"
     incsrc "code/palette_loader.asm"
     incsrc "code/score_sprites.asm"
     incsrc "code/graphics.asm"
