@@ -16,6 +16,7 @@ level_palette_setting       = $03BFAC
 map_palette_setting         = $03BFAD
 player_setting              = $03BFAE
 level_shuffle_active        = $03BFB0
+block_collect_behavior      = $03BFB1
 
 ;# Code & Data locations
 
