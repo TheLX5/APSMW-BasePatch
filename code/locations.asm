@@ -44,6 +44,8 @@ blocksanity_flying_init:
     lda $E4,x
     and #$F0
     sta !sprite_blocksanity_x_lo,x
+    jsr blocksanity_keep_collected_flying_block
+    lda $E4,x
     lsr #2
     jml $01AD5D
 
@@ -189,3 +191,211 @@ prize_from_bonus_block:
 
 ;#########################################################################
 ;# 
+
+pushpc
+    org $0DA92E
+        jml blocksanity_keep_collected_coin_block
+    org $0DA5BF
+        jml blocksanity_keep_collected_item_block
+    org $0DB58F
+        jml blocksanity_keep_collected_switch
+
+pullpc
+
+blocksanity_keep_collected:
+.coin_block
+    cpx #$09
+    beq ..valid
+..normal_behavior
+    lda.l $0DA8B4,x
+    jml $0DA932
+..valid
+    lda.l blocksanity_enabled_flag 
+    beq ..normal_behavior
+    lda.l block_collect_behavior
+    and #$01
+    beq ..normal_behavior
+    jsr .check_block
+    beq ..normal_behavior
+    cmp #$FF
+    beq ..normal_behavior
+    lda #$32
+    jml $0DA932
+
+.flying_block
+    lda.l blocksanity_enabled_flag 
+    beq ..normal_behavior
+    lda.l block_collect_behavior
+    and #$01
+    beq ..normal_behavior
+    lda $E4,x
+    lsr #4
+    sta $00
+    lda $D8,x
+    and #$F0
+    ora $00
+    tay 
+    lda $14D4,x
+    asl #4
+    sta $0A
+    lda $14E0,x
+    sta $1BA1
+    jsr .check_block
+    beq ..normal_behavior
+    cmp #$FF
+    beq ..normal_behavior
+    inc $C2,x
+..normal_behavior
+    rts 
+
+.item_block
+    lda.l blocksanity_enabled_flag 
+    beq ..normal_behavior
+    lda.l block_collect_behavior
+    and #$02
+    beq ..normal_behavior
+    lda.l ..blocks,x
+    beq ..normal_behavior
+    cmp #$01
+    beq ..note_block
+..turn_question_block
+    jsr .check_block
+    beq ..normal_behavior
+    cmp #$FF
+    beq ..normal_behavior
+    lda #$32
+    jml $0DA64A
+
+..normal_behavior
+    lda.l $0DA548,x
+    jml $0DA5C3
+
+..note_block
+    jsr .check_block
+    beq ..normal_behavior
+    cmp #$FF
+    beq ..normal_behavior
+    lda #$13
+    jml $0DA64A
+
+..blocks
+    db $00,$00,$00,$00,$00,$00,$00,$00
+    db $00,$00,$00,$00,$00,$00,$00,$00
+    db $00,$00,$00,$01,$00,$00,$00,$00
+    db $02,$02,$02,$00,$00,$02,$02,$02
+    db $02,$02,$02,$02,$00,$00,$02,$02
+    db $02,$02,$00,$00,$00,$00,$00,$00
+    db $00,$00,$00,$00,$00,$00,$00,$00
+    db $00,$00,$00,$00,$00,$00,$00,$00
+
+.switch
+    lda.l blocksanity_enabled_flag 
+    beq ..normal_behavior
+    lda.l block_collect_behavior
+    and #$02
+    beq ..normal_behavior
+    jsr .check_block
+    beq ..normal_behavior
+    cmp #$FF
+    beq ..normal_behavior
+..collected 
+    lda #$01
+    sta [$6E],y
+    lda #$32
+    jml $0DB5A5
+..normal_behavior
+    lda $1F27,x
+    bne ..fill
+    jml $0DB594
+..fill
+    jml $0DB59E
+
+.check_block
+    phb 
+    lda.b #blocksanity_pointers>>16
+    pha 
+    plb 
+    phy 
+    phx
+    php
+    lda $0A
+    lsr #4
+    and #$01
+    pha 
+    tya 
+    and #$F0
+    pha 
+    lda $1BA1
+    pha 
+    tya 
+    asl #4
+    pha 
+
+    lda $5B
+    lsr 
+    bcc ..horizontal_level
+..vertical_level
+    lda $02,s
+    tay 
+    lda $04,s
+    sta $02,s
+    tya 
+    sta $04,s 
+..horizontal_level
+    
+    rep #$30
+    lda !shuffled_ow_level
+    and #$00FF
+    asl 
+    clc 
+    adc.w #blocksanity_pointers
+    pha 
+    ldy #$0000
+    lda ($01,s),y
+    pha 
+..loop
+    lda ($01,s),y
+    cmp #$FFFF
+    beq ..return
+    cmp $05,s
+    bne ..next_block_x
+    iny #2
+    lda ($01,s),y
+    cmp $07,s
+    beq ..valid_block
+    bra ..next_block_y
+..next_block_x
+    iny #2
+..next_block_y 
+    iny #4
+    bra ..loop
+..return
+    plx 
+    plx 
+    plx 
+    plx 
+    plp 
+    plx 
+    ply
+    plb 
+    lda #$FF
+    cmp #$FF
+    rts 
+
+..valid_block
+    iny #2
+    lda ($01,s),y
+    tax 
+    sep #$20
+    lda !blocksanity_data_flags,x
+..processed
+    plx
+    plx 
+    plx 
+    plx 
+    plp 
+    plx 
+    ply
+    plb
+    cmp #$00
+    rts 
