@@ -106,23 +106,23 @@ pushpc
 pullpc
 
 lock_climb:
-            lda !ability_byte_1
-            and #$20
-            beq .not_unlocked
-            lda $8B
-            sta $74
-            jml $00DB17
-        .not_unlocked
-            jml $00CD76
+        lda !ability_byte_1
+        and #$20
+        beq .not_unlocked
+        lda $8B
+        sta $74
+        jml $00DB17
+    .not_unlocked
+        jml $00CD76
 
 lock_climb_rope:
-            lda !ability_byte_1
-            and #$20
-            beq .not_unlocked
-            lda #$B0
-            sta $7D
-        .not_unlocked
-            rtl
+        lda !ability_byte_1
+        and #$20
+        beq .not_unlocked
+        lda #$B0
+        sta $7D
+    .not_unlocked
+        rtl
 
 ;#########################################################################
 ;# P-Switch
@@ -141,6 +141,7 @@ lock_pswitch:
         beq .not_unlocked
         ldy #$B0
     .not_unlocked
+        tya 
         ply 
         sta $14AD,y
         rtl
@@ -212,9 +213,9 @@ lock_swim:
         and #$04
         beq .not_unlocked
         pla 
-        cmp.w $D489,x
+        cmp.w $D984,x
         bcs +
-        lda.w $D489,x
+        lda.w $D984,x
     +   
         jml $00DA2D
     .not_unlocked
@@ -354,11 +355,7 @@ lock_fire_flower:
 
 pushpc 
     org $00D168
-        jsl cape_transform
-        rts 
-        nop 
-    ; TODO: put a label here instead of raw bytes
-        beq $D1
+        jml cape_transform
 
     org $01C598
         jsl lock_cape
@@ -368,12 +365,12 @@ cape_transform:
         lda $19
         lsr 
         bne +
-        rtl 
+        jml $00D140
     +   
         lda #$00
         sta $71
-        stz $9D 
-        rtl
+        stz $9D
+        jml $00D18C
 
 lock_cape:
         lda !ability_byte_2
