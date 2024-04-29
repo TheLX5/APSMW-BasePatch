@@ -448,3 +448,8 @@ upload_score_sprite_gfx:
         dw $6240,$6200
         dw $60E0,$60C0,$60A0,$6080,$6060
     ..end
+
+pushpc
+    org $1CF000
+        incbin "../data/graphics/indicators.bin"
+pullpc
