@@ -434,7 +434,7 @@
         ["power",  "0880", "0100", ["swim climb", "swim yoshi"]],
         ["power",  "0730", "0040", ["swim climb", "swim yoshi"]],
         ["power",  "0D10", "0100", ["swim climb", "swim yoshi"]],
-        ["multi",  "1290", "0130", ["swim climb", "swim yoshi"]],
+        ["multi",  "0290", "0130", ["swim climb", "swim yoshi"]],
         ["multi",  "1150", "0140", ["swim climb", "swim yoshi"]]
     ],
     "119_vanilla_dome_4": [
