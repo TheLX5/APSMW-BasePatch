@@ -151,16 +151,11 @@ lock_pswitch:
 
 pushpc
     org $00D645
-        lda !ability_byte_1
-        and #$08
-        beq +
-        print "   Spin Jump SFX Call: $", pc
+        jml unlocked_spin_jump
+        print "    Spin Jump SFX Call: $", pc
         lda #$04
         sta $1DFC
-        jsl unlocked_spin_jump
-        nop 
-    org $00D656
-        +
+        rtl 
 
     org $00EA89
         jml lock_spin_jump_water
@@ -170,12 +165,18 @@ pushpc
 pullpc
 
 unlocked_spin_jump:
+        lda !ability_byte_1
+        and #$08
+        beq .not_unlocked
+        jsl $00D649
         lda #$01
         sta $140D
         ldy $76
         lda $D5F0,y
         sta $13E2
-        rtl 
+        jml $00D656
+    .not_unlocked
+        jml $00D65E
 
 lock_spin_jump_water:
         lda !ability_byte_1
@@ -334,7 +335,7 @@ pullpc
 
 flower_palette_cycle:
         dec $149B
-        beq +
+        bne +
         lda #$00
         sta $71
         stz $9D
