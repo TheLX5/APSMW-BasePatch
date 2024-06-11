@@ -17,6 +17,7 @@ pushpc
         
     org $01AE16
         jsl blocksanity_flying_main
+
 pullpc
 
 blocksanity_main:
@@ -29,9 +30,11 @@ blocksanity_main:
     jsr process_block
     ply 
     plb 
+
     lda $05
     cmp #$05
     jml $00F1D4
+
 
 blocksanity_flying_init:
     lda $D8,x
@@ -190,7 +193,7 @@ prize_from_bonus_block:
     jml $00F1D0
 
 ;#########################################################################
-;# 
+;# Makes blocks retain their collected status
 
 pushpc
     org $0DA92E
@@ -399,3 +402,505 @@ blocksanity_keep_collected:
     plb
     cmp #$00
     rts 
+
+;#########################################################################
+;# Makes block indicate which kind of item they have inside
+
+pushpc
+    org $058B46
+        jsl change_block_appareance
+        nop 
+    org $058A66
+        jsl change_block_appareance
+        nop 
+    org $058C34
+        jsl change_block_appareance
+        nop 
+    org $058D2B
+        jsl change_block_appareance
+        nop 
+
+    org $0DFE9F
+        new_look_question_block:
+            .progressive
+                dw $1489,$148B,$148A,$1482
+            .useful
+                dw $1889,$188B,$188A,$1882
+            .filler
+                dw $1C89,$1C8B,$1C8A,$1C82
+        new_look_question_block_castle:
+            .progressive
+                dw $148E,$149E,$148F,$149F
+            .useful
+                dw $188E,$189E,$188F,$189F
+            .filler
+                dw $1C8E,$1C9E,$1C8F,$1C9F
+        new_look_bonus_block:
+            .progressive
+                dw $14BE,$14F6,$14D7,$14F7
+            .useful
+                dw $18BE,$18F6,$18D7,$18F7
+            .filler
+                dw $1CBE,$1CF6,$1CD7,$1CF7
+        new_look_goal_top_back:
+            .progressive
+                dw $14A0,$14A2,$14A1,$14A3
+            .useful
+                dw $18A0,$18A2,$18A1,$18A3
+            .filler
+                dw $1CA0,$1CA2,$1CA1,$1CA3
+        new_look_goal_bottom_back:
+            .progressive
+                dw $14A2,$14A2,$14A3,$14A3
+            .useful
+                dw $18A2,$18A2,$18A3,$18A3
+            .filler
+                dw $1CA2,$1CA2,$1CA3,$1CA3
+        new_look_goal_top_front:
+            .progressive
+                dw $34A0,$34A2,$34A1,$34A3
+            .useful
+                dw $38A0,$38A2,$38A1,$38A3
+            .filler
+                dw $3CA0,$3CA2,$3CA1,$3CA3
+        new_look_goal_bottom_front:
+            .progressive
+                dw $34A2,$34A2,$34A3,$34A3
+            .useful
+                dw $38A2,$38A2,$38A3,$38A3
+            .filler
+                dw $3CA2,$3CA2,$3CA3,$3CA3
+        
+pullpc
+
+change_block_appareance:
+    phx 
+    cpy #$0400
+    bcs .invalid
+    lda $0100
+    and #$00FF
+    cmp #$000B
+    bcc .may_be_level
+    cmp #$000F
+    bcc .invalid
+.may_be_level
+    cmp #$0015
+    bcs .invalid
+    tyx 
+    lda.l visual_remap_table,x
+    tax 
+    jmp (.ptrs,x)
+
+.ptrs
+    dw .invalid                 ; $0000
+    dw .question_blocks         ; $0002
+    dw .turn_blocks             ; $0004
+    dw .note_blocks             ; $0006
+    dw .switch_blocks           ; $0008
+    dw .bonus_blocks            ; $000A
+    dw .goal_back_1             ; $000C
+    dw .goal_back_2             ; $000E
+    dw .goal_back_3             ; $0010
+    dw .goal_front_1            ; $0012
+    dw .goal_front_2            ; $0014
+    dw .goal_front_3            ; $0016
+    dw .pswitch_block           ; $0018
+
+.invalid
+    lda $0FBE,y
+    sta $0A
+    plx 
+    rtl 
+
+.note_blocks
+.switch_blocks
+.turn_blocks
+.question_blocks
+    lda.l block_visual_indicator
+    and #$0010
+    beq .invalid
+    jsr .check_block
+    bcc .invalid
+..blocksanity
+    tax 
+    lda.l blocksanity_item_flags,x
+    and #$00FF
+    tax 
+    lda !shuffled_ow_level
+    and #$00FF
+    cmp #$0025
+    beq ...castle
+    cmp #$000E
+    beq ...castle
+    lda.l new_look_question_block_ptr,x
+    sta $0A
+    plx 
+    rtl 
+...castle
+    lda.l new_look_question_block_castle_ptr,x
+    sta $0A
+    plx 
+    rtl 
+
+
+.pswitch_block
+    lda $0FBE,y
+    sta $0A
+    plx 
+    rtl 
+
+.bonus_blocks
+    lda.l block_visual_indicator
+    and #$0008
+    beq ..invalid
+    ldx !shuffled_ow_level
+    lda.l bonus_block_item_flags,x
+    and #$00FF
+    tax 
+    lda.l new_look_bonus_block_ptr,x
+    sta $0A
+    plx 
+    rtl 
+..invalid
+    lda $0FBE,y
+    sta $0A
+    plx 
+    rtl 
+
+.goal_back_1
+    lda.l block_visual_indicator
+    and #$0001
+    beq ..invalid
+    lda !current_room
+    and #$00FF
+    tax 
+    cpx #$0010
+    beq ..handle_same_level
+    cpx #$0023
+    beq ..handle_same_level
+    cpx #$00EB
+    beq ..force_secret_exit
+    cpx #$01E7
+    beq ..force_secret_exit
+..normal
+    lda.l normal_exit_item_flags,x
+..secret
+    and #$00FF
+    tax 
+    lda.l new_look_goal_top_back_ptr,x
+    sta $0A
+    plx 
+    rtl 
+..invalid
+    lda $0FBE,y
+    sta $0A
+    plx 
+    rtl 
+..handle_same_level
+    phx 
+    lda $55
+    and #$00FF
+    tax 
+    lda $45,x
+    plx 
+    and #$00FF
+    cmp #$0012
+    beq ..normal
+..force_secret_exit
+    lda.l secret_exit_item_flags,x
+    bra ..secret
+
+
+
+.goal_back_2
+.goal_back_3
+    lda.l block_visual_indicator
+    and #$0001
+    beq ..invalid
+    lda !current_room
+    and #$00FF
+    tax 
+    cpx #$0010
+    beq ..handle_same_level
+    cpx #$0023
+    beq ..handle_same_level
+    cpx #$00EB
+    beq ..force_secret_exit
+    cpx #$01E7
+    beq ..force_secret_exit
+..normal
+    lda.l normal_exit_item_flags,x
+..secret
+    and #$00FF
+    tax 
+    lda.l new_look_goal_bottom_back_ptr,x
+    sta $0A
+    plx 
+    rtl 
+..invalid
+    lda $0FBE,y
+    sta $0A
+    plx 
+    rtl 
+..handle_same_level
+    phx 
+    lda $55
+    and #$00FF
+    tax 
+    lda $45,x
+    plx 
+    and #$00FF
+    cmp #$0012
+    beq ..normal
+..force_secret_exit
+    lda.l secret_exit_item_flags,x
+    bra ..secret
+
+.goal_front_1
+    lda.l block_visual_indicator
+    and #$0001
+    beq ..invalid
+    lda !current_room
+    and #$00FF
+    tax 
+    cpx #$0010
+    beq ..handle_same_level
+    cpx #$0023
+    beq ..handle_same_level
+    cpx #$00EB
+    beq ..force_secret_exit
+    cpx #$01E7
+    beq ..force_secret_exit
+..normal
+    lda.l normal_exit_item_flags,x
+..secret
+    and #$00FF
+    tax 
+    lda.l new_look_goal_top_front_ptr,x
+    sta $0A
+    plx 
+    rtl 
+..invalid
+    lda $0FBE,y
+    sta $0A
+    plx 
+    rtl 
+..handle_same_level
+    phx 
+    lda $55
+    and #$00FF
+    tax 
+    lda $45,x
+    plx 
+    and #$00FF
+    cmp #$0012
+    beq ..normal
+..force_secret_exit
+    lda.l secret_exit_item_flags,x
+    bra ..secret
+
+.goal_front_2
+.goal_front_3
+    lda.l block_visual_indicator
+    and #$0001
+    beq ..invalid
+    lda !current_room
+    and #$00FF
+    tax 
+    cpx #$0010
+    beq ..handle_same_level
+    cpx #$0023
+    beq ..handle_same_level
+    cpx #$00EB
+    beq ..force_secret_exit
+    cpx #$01E7
+    beq ..force_secret_exit
+..normal
+    lda.l normal_exit_item_flags,x
+..secret
+    and #$00FF
+    tax 
+    lda.l new_look_goal_bottom_front_ptr,x
+    sta $0A
+    plx 
+    rtl 
+..invalid
+    lda $0FBE,y
+    sta $0A
+    plx 
+    rtl 
+..handle_same_level
+    phx 
+    lda $55
+    and #$00FF
+    tax 
+    lda $45,x
+    plx 
+    and #$00FF
+    cmp #$0012
+    beq ..normal
+..force_secret_exit
+    lda.l secret_exit_item_flags,x
+    bra ..secret
+
+;###########################
+
+.check_block
+    phb 
+    pea.w $1111
+    plb 
+    plb 
+    phy 
+    phx
+    php
+    lda $5B
+    lsr 
+    bcc ..horizontal_level
+..vertical_level
+    lda $55
+    and #$00FF
+    tax 
+    lda $45,x
+    asl #4
+    pha 
+    lda $08
+    and #$000F
+    asl #4
+    pha
+    lda $08
+    and #$0100
+    ora $01,s
+    sta $01,s 
+    bra ..shared
+..horizontal_level
+    lda $08
+    and #$FFF0
+    pha 
+    lda $55
+    and #$00FF
+    tax 
+    lda $45,x
+    asl #4
+    pha 
+..shared
+    rep #$20
+    lda !shuffled_ow_level
+    and #$00FF
+    asl 
+    clc 
+    adc.w #blocksanity_pointers
+    pha 
+    ldy #$0000
+    lda ($01,s),y
+    pha 
+..loop
+    lda ($01,s),y
+    cmp #$FFFF
+    beq ..return
+    cmp $05,s
+    bne ..next_block_x
+    iny #2
+    lda ($01,s),y
+    cmp $07,s
+    beq ..valid_block
+    bra ..next_block_y
+..next_block_x
+    iny #2
+..next_block_y 
+    iny #4
+    bra ..loop
+..return
+    plx 
+    plx 
+    plx  
+    plx  
+    plp 
+    plx 
+    ply
+    plb 
+    lda #$FFFF
+    clc
+    rts 
+
+..valid_block
+    iny #2
+    lda ($01,s),y
+    tax 
+    lda !blocksanity_data_flags,x
+    and #$00FF
+    bne ..return
+    txa 
+    plx 
+    plx  
+    plx  
+    plx  
+    plp 
+    plx 
+    ply
+    plb
+    sec 
+    rts 
+
+new_look_question_block_ptr:
+    dw new_look_question_block_filler
+    dw new_look_question_block_progressive
+    dw new_look_question_block_useful
+    dw new_look_question_block_filler
+    dw new_look_question_block_progressive
+    dw new_look_question_block_progressive
+    dw new_look_question_block_progressive
+    dw new_look_question_block_progressive
+new_look_question_block_castle_ptr:
+    dw new_look_question_block_castle_filler
+    dw new_look_question_block_castle_progressive
+    dw new_look_question_block_castle_useful
+    dw new_look_question_block_castle_filler
+    dw new_look_question_block_castle_progressive
+    dw new_look_question_block_castle_progressive
+    dw new_look_question_block_castle_progressive
+    dw new_look_question_block_castle_progressive
+new_look_bonus_block_ptr:
+    dw new_look_bonus_block_filler
+    dw new_look_bonus_block_progressive
+    dw new_look_bonus_block_useful
+    dw new_look_bonus_block_filler
+    dw new_look_bonus_block_progressive
+    dw new_look_bonus_block_progressive
+    dw new_look_bonus_block_progressive
+    dw new_look_bonus_block_progressive
+new_look_goal_top_back_ptr:
+    dw new_look_goal_top_back_filler
+    dw new_look_goal_top_back_progressive
+    dw new_look_goal_top_back_useful
+    dw new_look_goal_top_back_filler
+    dw new_look_goal_top_back_progressive
+    dw new_look_goal_top_back_progressive
+    dw new_look_goal_top_back_progressive
+    dw new_look_goal_top_back_progressive
+new_look_goal_bottom_back_ptr:
+    dw new_look_goal_bottom_back_filler
+    dw new_look_goal_bottom_back_progressive
+    dw new_look_goal_bottom_back_useful
+    dw new_look_goal_bottom_back_filler
+    dw new_look_goal_bottom_back_progressive
+    dw new_look_goal_bottom_back_progressive
+    dw new_look_goal_bottom_back_progressive
+    dw new_look_goal_bottom_back_progressive
+new_look_goal_top_front_ptr:
+    dw new_look_goal_top_front_filler
+    dw new_look_goal_top_front_progressive
+    dw new_look_goal_top_front_useful
+    dw new_look_goal_top_front_filler
+    dw new_look_goal_top_front_progressive
+    dw new_look_goal_top_front_progressive
+    dw new_look_goal_top_front_progressive
+    dw new_look_goal_top_front_progressive
+new_look_goal_bottom_front_ptr:
+    dw new_look_goal_bottom_front_filler
+    dw new_look_goal_bottom_front_progressive
+    dw new_look_goal_bottom_front_useful
+    dw new_look_goal_bottom_front_filler
+    dw new_look_goal_bottom_front_progressive
+    dw new_look_goal_bottom_front_progressive
+    dw new_look_goal_bottom_front_progressive
+    dw new_look_goal_bottom_front_progressive

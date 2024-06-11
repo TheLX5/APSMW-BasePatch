@@ -133,7 +133,22 @@ level_palettes:
         sta !_index
         lda #$0006
         sta !_x_span
-        lda #$000B
+        lda #$0000
+        sta !_y_span
+        jsr load_colors
+        lda.w #$0051*$02
+        sta !_index
+        lda #$000E
+        sta !_x_span
+        lda #$0002
+        sta !_y_span
+        jsr load_colors
+    .load_sprite
+        lda.w #$0081*$02
+        sta !_index
+        lda #$0006
+        sta !_x_span
+        lda #$0007
         sta !_y_span
         jsr load_colors
     .load_sprite_specific
@@ -375,7 +390,7 @@ macro load_level_palette_file(filename)
         print "  $", hex(!i, 2), " <filename>: "
     endif
 
-    if !_bank_palette_count == 110
+    if !_bank_palette_count == 95
         ;# Move palettes into next bank in order to cross banks
         !custom_level_palettes #= !custom_level_palettes+$10000
         !_bank_palette_count #= 0
@@ -411,9 +426,9 @@ macro load_level_palette_file(filename)
             incbin "!{_path}/<filename>.mw3":$49*$02..$50*$02
         .global
             incbin "!{_path}/<filename>.mw3":$41*$02..$48*$02
-            incbin "!{_path}/<filename>.mw3":$51*$02..$58*$02
-            incbin "!{_path}/<filename>.mw3":$61*$02..$68*$02
-            incbin "!{_path}/<filename>.mw3":$71*$02..$78*$02
+            incbin "!{_path}/<filename>.mw3":$51*$02..$60*$02
+            incbin "!{_path}/<filename>.mw3":$61*$02..$70*$02
+            incbin "!{_path}/<filename>.mw3":$71*$02..$80*$02
         .sprites
             incbin "!{_path}/<filename>.mw3":$81*$02..$88*$02
             incbin "!{_path}/<filename>.mw3":$91*$02..$98*$02

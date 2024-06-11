@@ -25,9 +25,9 @@ pushpc
     org $00A300
         mario_gfx_dma:
             ldx #$04
-            jsl upload_score_sprite_gfx
             jsl player_code
-            rts 
+            jsl gamemode_code
+            rts
 
     org $00DF1A
         db $00,$00,$00,$00,$00,$00,$00,$00
@@ -307,66 +307,261 @@ fix_berries:
         rtl 
 
 ;##############################################################################
-;# Upload score sprite GFX
+;# Upload GFX
 ;# Will be reprogrammed at some point to make it faster
 
-upload_score_sprite_gfx:
+!gfx_uploaded_flag = $7C
+
+gamemode_code:
+        lda $0D9B
+        bmi +
         lda $0100
-        cmp #$13
-        beq .check_level
-        jmp .check_map
-    .check_level
-        lda $7C
-        beq ..perform
-        jmp .skip
-    ..perform
-        inc $7C
+        asl 
+        tax 
+        jsr (.ptrs,x)
+    +
+        rtl 
+    .return
+        rts
+
+    .ptrs
+        dw .return      ; 00 Load Nintendo Presents
+        dw .return      ; 01 Nintendo Presents
+        dw .return      ; 02 Fade to Title Screen
+        dw .return      ; 03 Load Title Screen
+        dw .return      ; 04 Prepare Title Screen
+        dw .return      ; 05 Title Screen: Fade in
+        dw .return      ; 06 Title Screen: Circle effect
+        dw .return      ; 07 Title Screen
+        dw .return      ; 08 Title Screen: File select
+        dw .return      ; 09 Title Screen: File delete
+        dw .return      ; 0A Title Screen: Player select
+        dw .return      ; 0B Fade to Overworld
+        dw .return      ; 0C Load Overworld
+        dw gamemode_ow_fade_in      ; 0D Overworld: Fade in
+        dw gamemode_ow_main      ; 0E Overworld
+        dw .return      ; 0F Fade to Level
+        dw .return      ; 10 Fade to Level (black)
+        dw .return      ; 11 Load Level (Mario Start!)
+        dw .return      ; 12 Prepare Level
+        dw gamemode_level_fade_in      ; 13 Level: Fade in
+        dw gamemode_level_main      ; 14 Level
+        dw .return      ; 15 Fade to Game Over / Time Up
+        dw .return      ; 16 Load Game Over / Time Up
+        dw .return      ; 17 Game Over / Time Up
+        dw .return      ; 18 Load Credits/Cutscene?
+        dw .return      ; 19 Load Credits/Cutscene?
+        dw .return      ; 1A Load Credits/Cutscene?
+        dw .return      ; 1B Ending: Credits / Cutscene
+        dw .return      ; 1C Ending: Fade to Yoshi's House
+        dw .return      ; 1D Ending: Load Yoshi's House
+        dw .return      ; 1E Ending: Yoshi's House: Fade in
+        dw .return      ; 1F Ending: Yoshi's House
+        dw .return      ; 20 Fade to Enemies
+        dw .return      ; 21 Fade to Enemies (black)
+        dw .return      ; 22 Fade to Enemies?
+        dw .return      ; 23 Fade to Enemies (black)?
+        dw .return      ; 24 Ending: Enemies: Fade in
+        dw .return      ; 25 Ending: Enemies
+        dw .return      ; 26 Fade to The End / Go to 22
+        dw .return      ; 27 Ending: Load The End
+        dw .return      ; 28 Ending: The End: Fade in
+        dw .return      ; 29 Ending: The End
+
+gamemode_level_fade_in:
+        lda !gfx_uploaded_flag
+        bne .skip
+        inc !gfx_uploaded_flag
+        ldx #$04
+        jsr upload_static_level_gfx
+    .skip
+        rts 
+
+gamemode_ow_main:
+        jsr update_map_palette
+        rts
+
+gamemode_ow_fade_in:
+        lda !gfx_uploaded_flag
+        bne .skip
+        inc !gfx_uploaded_flag
+        ldx #$04
+        jsr upload_player_map_graphics
+    .skip
+        jsr update_map_palette
+        rts
+
+gamemode_level_main:
+        ldx #$04
+        jsr upload_blocks
+        rts 
+
+
+upload_static_level_gfx:
         rep #$20
         ldy #$80
         sty $2115
         lda #$1801
         sta $4320
+    .indicators
         ldy.b #$1C
         sty $4324
+        ldy #$04
         lda.w #$F000
         sta $4322
-    .nums_01
+    ..nums_01
         lda #$64A0
         sta $2116
         lda #$0040
         sta $4325
-        stx $420B
-    .nums_35
+        sty $420B
+    ..nums_35
         lda #$65A0
         sta $2116
         lda #$0040
         sta $4325
-        stx $420B
-    .plus_coin
+        sty $420B
+    ..plus_coin
         lda #$61A0
         sta $2116
         lda #$0040
         sta $4325
-        stx $420B
-    .egg_mushroom
+        sty $420B
+    ..egg_mushroom
         lda #$60A0
         sta $2116
         lda #$0040
         sta $4325
-        stx $420B
-    .flower_feather
+        sty $420B
+    ..flower_feather
         lda #$67E0
         sta $2116
         lda #$0040
         sta $4325
-        stx $420B
-    .token
+        sty $420B
+    ..token
         lda #$6380
         sta $2116
         lda #$0020
         sta $4325
-        stx $420B
-    .layer_3
+        sty $420B
+
+    ..dragon_coins
+        lda.l block_visual_indicator
+        and #$0002
+        beq ...skip
+        lda !shuffled_ow_level
+        and #$00FF
+        tax 
+        lda.l dragon_coin_item_flags,x
+        and #$000F
+        tax 
+        lda.l ..dragon_coins_offsets,x
+        sta $4322
+
+        lda #$0080
+        sta $2116
+        lda #$0040
+        sta $4325
+        sty $420B
+
+        lda #$0180
+        sta $2116
+        lda #$0040
+        sta $4325
+        sty $420B
+        
+        lda #$0280
+        sta $2116
+        lda #$0040
+        sta $4325
+        sty $420B
+        
+        lda #$0380
+        sta $2116
+        lda #$0040
+        sta $4325
+        sty $420B
+    ...skip
+
+    ..moon
+        lda.l block_visual_indicator
+        and #$0004
+        beq ...skip
+        lda !shuffled_ow_level
+        and #$00FF
+        tax 
+        lda.l moon_item_flags,x
+        and #$000F
+        tax 
+        lda.l ..moon_offsets,x
+        sta $4322
+        
+        lda #$0BB0
+        sta $2116
+        lda #$0020
+        sta $4325
+        sty $420B
+        
+        lda #$08D0
+        sta $2116
+        lda #$0020
+        sta $4325
+        sty $420B
+        
+        lda #$0F00
+        sta $2116
+        lda #$0020
+        sta $4325
+        sty $420B
+        
+        lda #$09D0
+        sta $2116
+        lda #$0020
+        sta $4325
+        sty $420B
+    ...skip
+
+    ..goal
+        lda.l block_visual_indicator
+        and #$0001
+        beq ...skip
+        lda.w #$0580+gfx_blocks
+        sta $4322
+        lda #$0A00
+        sta $2116
+        lda #$0080
+        sta $4325
+        sty $420B
+    ...skip
+
+    ..bonus_block
+        lda.l block_visual_indicator
+        and #$0008
+        beq ...skip
+        lda.w #$0500+gfx_blocks
+        sta $4322
+
+        lda #$0BE0
+        sta $2116
+        lda #$0020
+        sta $4325
+        sty $420B
+
+        lda #$0D70
+        sta $2116
+        lda #$0020
+        sta $4325
+        sty $420B
+
+        lda #$0F60
+        sta $2116
+        lda #$0040
+        sta $4325
+        sty $420B
+    ...skip
+        
+    ..layer_3
         lda.w #$EC00
         sta $4322
         lda #$4180
@@ -375,16 +570,23 @@ upload_score_sprite_gfx:
         sta $4325
         stx $420B
         sep #$20
-    .skip 
-        rtl 
-    .check_map
-        cmp #$0E
-        beq .map_pal
-        cmp #$0D
-        bne .skip
-        lda $7C
-        bne .skip
-        inc $7C
+        rts 
+
+    ..dragon_coins_offsets
+        dw $0200+gfx_blocks
+        dw $0300+gfx_blocks
+        dw $0200+gfx_blocks
+        dw $0200+gfx_blocks
+        dw $0300+gfx_blocks
+
+    ..moon_offsets
+        dw $0400+gfx_blocks
+        dw $0480+gfx_blocks
+        dw $0400+gfx_blocks
+        dw $0400+gfx_blocks
+        dw $0480+gfx_blocks
+
+upload_player_map_graphics:
         rep #$20
         ldy #$80
         sty $2115
@@ -397,7 +599,7 @@ upload_score_sprite_gfx:
         phx 
         txy 
         ldx.b #(.map_targets_end-.map_targets-2)
-    ..loop
+    .loop
         lda #$0040
         sta $4325
         lda.l .map_targets,x
@@ -411,10 +613,23 @@ upload_score_sprite_gfx:
         sta $4325
         sty $420B
         dex #2
-        bpl ..loop
+        bpl .loop
         plx 
         sep #$20
-    .map_pal
+        rts 
+
+    .map_targets
+    ..yoshi
+        dw $6420,$6400,$62E0
+    ..mario
+        dw $6660,$6640
+        dw $6460
+        dw $6240,$6200
+        dw $60E0,$60C0,$60A0,$6080,$6060
+    ..end
+
+
+update_map_palette:
         lda #$A3
         sta $2121
         lda $00B59C
@@ -437,19 +652,72 @@ upload_score_sprite_gfx:
         sta $2122
         lda $00B5A5
         sta $2122
-        rtl 
-
-    .map_targets
-    ..yoshi
-        dw $6420,$6400,$62E0
-    ..mario
-        dw $6660,$6640
-        dw $6460
-        dw $6240,$6200
-        dw $60E0,$60C0,$60A0,$6080,$6060
-    ..end
-
+        rts 
 pushpc
     org $1CF000
-        incbin "../data/graphics/indicators.bin"
+        gfx_indicators:
+            incbin "../data/graphics/indicators.bin"
+    org $1CF200
+        gfx_blocks:
+            incbin "../data/graphics/blocks.bin"
 pullpc
+
+
+upload_blocks:
+        rep #$20
+        ldy #$80
+        sty $2115
+        lda #$1801
+        sta $4320
+        ldy.b #gfx_blocks>>16
+        sty $4324
+
+        lda $14
+        and #$0007
+        beq .question_blocks
+        sep #$20
+        rts
+
+    .question_blocks
+        lda $14
+        and #$001C
+        lsr #2
+        tax 
+        lda.l .question_block_srcs,x
+        sta $4322
+        ldx #$04
+        lda !shuffled_ow_level
+        and #$00FF
+        cmp #$0025
+        beq ..castle
+        cmp #$000E
+        beq ..castle
+        lda #$0890
+        sta $2116
+        lda #$0060
+        sta $4325
+        stx $420B
+        lda #$0820
+        sta $2116
+        lda #$0020
+        sta $4325
+        stx $420B
+        sep #$20
+        rts 
+    ..castle
+        lda #$08E0
+        sta $2116
+        lda #$0040
+        sta $4325
+        stx $420B
+        lda #$09E0
+        sta $2116
+        lda #$0040
+        sta $4325
+        stx $420B
+        sep #$20
+        rts 
+
+
+.question_block_srcs
+    dw $0000+gfx_blocks,$0080+gfx_blocks,$0100+gfx_blocks,$0180+gfx_blocks
