@@ -269,9 +269,9 @@ icon_score:
 
     ..plus_tile
         db $1A      ; 1 coin
-        db $1A      ; 3 coins
         db $1A      ; 5 coins
         db $1A      ; 10 coins
+        db $1A      ; 50 coins
         db $1A      ; yoshi egg
         db $1A      ; 1up mushroom
         db $1A      ; mushroom
@@ -285,9 +285,9 @@ icon_score:
         db $1A      ; 
     ..plus_props
         db $32      ; 1 coin
-        db $32      ; 3 coins
         db $32      ; 5 coins
         db $32      ; 10 coins
+        db $32      ; 50 coins
         db $32      ; yoshi egg
         db $32      ; 1up mushroom
         db $32      ; mushroom
@@ -305,7 +305,7 @@ icon_score:
         db $4B,$69  ; 1 coin
         db $5B,$69  ; 5 coins
         db $4B,$4A  ; 10 coins
-        db $4B,$5B  ; 15 coins
+        db $5B,$4A  ; 50 coins
         db $4B,$69  ; yoshi egg
         db $4B,$69  ; 1up mushroom
         db $4B,$69  ; mushroom
@@ -342,9 +342,9 @@ icon_score:
 
     .reward_ptrs
         dw .one_coin
-        dw .three_coins
         dw .five_coins
         dw .ten_coins
+        dw .fifty_coins
         dw .yoshi_egg
         dw .green_mushroom
         dw .mushroom
@@ -358,16 +358,16 @@ icon_score:
         dw .handle_movement
 
     .one_coin
-        lda #$01
-        bra .shared_coins
-    .three_coins
-        lda #$05
+        lda.b #1
         bra .shared_coins
     .five_coins
-        lda #$0A
+        lda.b #5
         bra .shared_coins
     .ten_coins
-        lda #$0F
+        lda.b #10
+        bra .shared_coins
+    .fifty_coins
+        lda.b #50
     .shared_coins
         clc 
         adc $13CC
