@@ -282,14 +282,14 @@ blocksanity_keep_collected:
     jml $0DA64A
 
 ..blocks
-    db $00,$00,$00,$00,$00,$00,$00,$00
-    db $00,$00,$00,$00,$00,$00,$00,$00
-    db $00,$00,$00,$01,$00,$00,$00,$00
-    db $02,$02,$02,$00,$00,$02,$02,$02
-    db $02,$02,$02,$02,$00,$00,$02,$02
-    db $02,$02,$00,$00,$00,$00,$00,$00
-    db $00,$00,$00,$00,$00,$00,$00,$00
-    db $00,$00,$00,$00,$00,$00,$00,$00
+    db $00,$00,$00,$00,$00,$00,$00,$00  ; 10-17
+    db $00,$00,$00,$00,$00,$00,$00,$00  ; 18-1F
+    db $00,$00,$00,$01,$00,$00,$00,$00  ; 20-27
+    db $02,$02,$02,$00,$00,$02,$02,$00  ; 28-2F
+    db $02,$02,$02,$02,$00,$00,$02,$02  ; 30-37
+    db $02,$02,$00,$00,$00,$00,$00,$00  ; 38-3F
+    db $00,$00,$00,$00,$00,$00,$00,$00  ; 40-47
+    db $00,$00,$00,$00,$00,$00,$00,$00  ; 48-4F
 
 .switch
     lda.l blocksanity_enabled_flag 
@@ -435,6 +435,13 @@ pushpc
                 dw $188E,$189E,$188F,$189F
             .filler
                 dw $1C8E,$1C9E,$1C8F,$1C9F
+        new_look_pswitch_question_block:
+            .progressive
+                dw $1499,$149B,$149A,$1492
+            .useful
+                dw $1899,$189B,$189A,$1892
+            .filler
+                dw $1C99,$1C9B,$1C9A,$1C92
         new_look_bonus_block:
             .progressive
                 dw $14BE,$14F6,$14D7,$14F7
@@ -544,7 +551,17 @@ change_block_appareance:
 
 
 .pswitch_block
-    lda $0FBE,y
+    lda.l block_visual_indicator
+    and #$0010
+    beq .invalid
+    jsr .check_block
+    bcc .invalid
+..blocksanity
+    tax 
+    lda.l blocksanity_item_flags,x
+    and #$00FF
+    tax 
+    lda.l new_look_pswitch_question_block_ptr,x
     sta $0A
     plx 
     rtl 
@@ -553,7 +570,7 @@ change_block_appareance:
     lda.l block_visual_indicator
     and #$0008
     beq ..invalid
-    ldx !shuffled_ow_level
+    ldx !current_ow_level
     lda.l bonus_block_item_flags,x
     and #$00FF
     tax 
@@ -571,16 +588,17 @@ change_block_appareance:
     lda.l block_visual_indicator
     and #$0001
     beq ..invalid
-    lda !current_room
+    lda !shuffled_ow_level
     and #$00FF
     tax 
-    cpx #$0010
+    lda !current_room
+    cmp #$000F
     beq ..handle_same_level
-    cpx #$0023
+    cmp #$0023
     beq ..handle_same_level
-    cpx #$00EB
+    cmp #$00EB
     beq ..force_secret_exit
-    cpx #$01E7
+    cmp #$01E7
     beq ..force_secret_exit
 ..normal
     lda.l normal_exit_item_flags,x
@@ -617,16 +635,17 @@ change_block_appareance:
     lda.l block_visual_indicator
     and #$0001
     beq ..invalid
-    lda !current_room
+    lda !shuffled_ow_level
     and #$00FF
     tax 
-    cpx #$0010
+    lda !current_room
+    cmp #$000F
     beq ..handle_same_level
-    cpx #$0023
+    cmp #$0023
     beq ..handle_same_level
-    cpx #$00EB
+    cmp #$00EB
     beq ..force_secret_exit
-    cpx #$01E7
+    cmp #$01E7
     beq ..force_secret_exit
 ..normal
     lda.l normal_exit_item_flags,x
@@ -660,16 +679,17 @@ change_block_appareance:
     lda.l block_visual_indicator
     and #$0001
     beq ..invalid
-    lda !current_room
+    lda !shuffled_ow_level
     and #$00FF
     tax 
-    cpx #$0010
+    lda !current_room
+    cmp #$000F
     beq ..handle_same_level
-    cpx #$0023
+    cmp #$0023
     beq ..handle_same_level
-    cpx #$00EB
+    cmp #$00EB
     beq ..force_secret_exit
-    cpx #$01E7
+    cmp #$01E7
     beq ..force_secret_exit
 ..normal
     lda.l normal_exit_item_flags,x
@@ -704,16 +724,17 @@ change_block_appareance:
     lda.l block_visual_indicator
     and #$0001
     beq ..invalid
-    lda !current_room
+    lda !shuffled_ow_level
     and #$00FF
     tax 
-    cpx #$0010
+    lda !current_room
+    cmp #$000F
     beq ..handle_same_level
-    cpx #$0023
+    cmp #$0023
     beq ..handle_same_level
-    cpx #$00EB
+    cmp #$00EB
     beq ..force_secret_exit
-    cpx #$01E7
+    cmp #$01E7
     beq ..force_secret_exit
 ..normal
     lda.l normal_exit_item_flags,x
@@ -859,6 +880,17 @@ new_look_question_block_castle_ptr:
     dw new_look_question_block_castle_progressive
     dw new_look_question_block_castle_progressive
     dw new_look_question_block_castle_progressive
+
+new_look_pswitch_question_block_ptr:
+    dw new_look_pswitch_question_block_filler
+    dw new_look_pswitch_question_block_progressive
+    dw new_look_pswitch_question_block_useful
+    dw new_look_pswitch_question_block_filler
+    dw new_look_pswitch_question_block_progressive
+    dw new_look_pswitch_question_block_progressive
+    dw new_look_pswitch_question_block_progressive
+    dw new_look_pswitch_question_block_progressive
+
 new_look_bonus_block_ptr:
     dw new_look_bonus_block_filler
     dw new_look_bonus_block_progressive

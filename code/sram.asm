@@ -12,7 +12,9 @@ pushpc
 pullpc
 
 init_sram:
-        bne .clear
+        beq .load
+        jmp .clear
+    .load
         stz $0109
         phx 
         php
@@ -50,6 +52,19 @@ init_sram:
         lda !goal_item_count_sram
         sta !goal_item_count
 
+        lda !death_counter_sram+$00
+        sta !death_counter+$00
+        lda !death_counter_sram+$01
+        sta !death_counter+$01
+        lda !death_counter_sram+$02
+        sta !death_counter+$02
+        lda !coin_counter_sram+$00
+        sta !coin_counter+$00
+        lda !coin_counter_sram+$01
+        sta !coin_counter+$01
+        lda !coin_counter_sram+$02
+        sta !coin_counter+$02
+
         plp 
         jml $009CFB
 
@@ -79,6 +94,23 @@ init_sram:
         bpl -
 
         sta !goal_item_count_sram
+
+        lda #$00
+        sta !inventory_sram+$00
+        sta !inventory_sram+$01
+        sta !inventory_sram+$02
+        sta !inventory_sram+$03
+        sta !inventory_sram+$04
+        sta !inventory_sram+$05
+        sta !inventory_sram+$06
+        sta !inventory_sram+$07
+
+        sta !death_counter_sram+$00
+        sta !death_counter_sram+$01
+        sta !death_counter_sram+$02
+        sta !coin_counter_sram+$00
+        sta !coin_counter_sram+$01
+        sta !coin_counter_sram+$02
 
         plx 
         jml $009D22
@@ -120,5 +152,18 @@ save_sram:
 
         lda !goal_item_count
         sta !goal_item_count_sram
+
+        lda !death_counter+$00
+        sta !death_counter_sram+$00
+        lda !death_counter+$01
+        sta !death_counter_sram+$01
+        lda !death_counter+$02
+        sta !death_counter_sram+$02
+        lda !coin_counter+$00
+        sta !coin_counter_sram+$00
+        lda !coin_counter+$01
+        sta !coin_counter_sram+$01
+        lda !coin_counter+$02
+        sta !coin_counter_sram+$02
 
         rtl 

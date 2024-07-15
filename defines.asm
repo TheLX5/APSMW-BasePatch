@@ -19,6 +19,7 @@ level_shuffle_active        = $03BFB0
 block_collect_behavior      = $03BFB1
 block_visual_indicator      = $03BFB2
 block_contents              = $03BFB3
+energy_link                 = $03BFB4
 
 ;# Code & Data locations
 
@@ -97,8 +98,13 @@ block_contents              = $03BFB3
 !score_sprite_add_mushroom      = !score_sprite_sram+$12
 !score_sprite_add_flower        = !score_sprite_sram+$14
 !score_sprite_add_feather       = !score_sprite_sram+$16
-!score_sprite_queue_delay       = !score_sprite_sram+$20
-!score_sprite_queue             = !score_sprite_sram+$22
+!score_sprite_add_star          = !score_sprite_sram+$18
+!score_sprite_add_green_yoshi   = !score_sprite_sram+$1A
+!score_sprite_add_red_yoshi   = !score_sprite_sram+$1C
+!score_sprite_add_blue_yoshi   = !score_sprite_sram+$1E
+!score_sprite_add_yellow_yoshi   = !score_sprite_sram+$20
+!score_sprite_queue_delay       = !score_sprite_sram+$40
+!score_sprite_queue             = !score_sprite_sram+$42
 
 ;# Extra Sprite Tables
 
@@ -131,8 +137,11 @@ block_contents              = $03BFB3
 !blocksanity_sram           = $700940
 !goal_item_count_sram       = $700954
 !blocksanity_data_sram      = $700A00
+!inventory_sram             = $7008F0
+!death_counter_sram         = $700F00
+!coin_counter_sram          = $700F03
 
-;# 
+;# Score Sprites
 
 !score_sprite_num = $16E1
 !score_sprite_y_lo = $16E7
@@ -142,3 +151,23 @@ block_contents              = $03BFB3
 !score_sprite_timer = $16FF
 !score_sprite_layer = $1705
 
+;# Inventory RAM
+
+!inventory_cursor       = $57   ; The inventory cursor index, 1 byte.
+!inventory_direction    = $59   ; The inventory direction, 1 byte.
+!inventory_timer        = $5A   ; The inventory timer, 1 byte.
+!inventory_y_pos        = $5B   ; The inventory Y position + 32, 1 byte.
+!inventory_disabled_item = $5C
+!vram_backup            = $7ED800   ; Backup for overwritten layer 1 tilemap, 512 bytes.
+!star_power		= $1DEF			; The star power flag, 1 byte. CHANGE THIS IF NEEDED!
+
+;# Stat trackers
+;# All of them are in decimal mode except EL
+
+!death_counter = $7FBC00
+!coin_counter = $7FBC03
+!energy_link_transfer = $7FBC06
+!energy_link_purchase = $7FBC08
+!energy_link_item = $7FBC0A
+!energy_link_reply = $7FBC0B
+!energy_link_count = $7FBC0C

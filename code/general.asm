@@ -155,6 +155,20 @@ pullpc
             sta !received_items_count+$00
             sta !received_items_count+$01
             sta !goal_item_count
+            sta !death_counter+$00
+            sta !death_counter+$01
+            sta !death_counter+$02
+            sta !coin_counter+$00
+            sta !coin_counter+$01
+            sta !coin_counter+$02
+            sta !energy_link_transfer+$00
+            sta !energy_link_transfer+$01
+            sta !energy_link_purchase+$00
+            sta !energy_link_purchase+$01
+            sta !energy_link_item
+            sta !energy_link_reply
+            sta !energy_link_count+$00
+            sta !energy_link_count+$01
 
             lda #$FF
             sta !thwimp_index
@@ -216,7 +230,8 @@ pushpc
     ;# Prepare second level table
     org $06F600
         shuffled_level_table:
-            fillbyte $00 : fill $0800
+            incbin "data/level_default_data.bin"
+            ;fillbyte $00 : fill $0800
 
     ;# Repoint level load pointer
     org $05D89B
@@ -481,19 +496,150 @@ pushpc
 pullpc
 
 ;#########################################################################
-;# 
+;# EnergyLink & Coin tracking
 
 pushpc
+    org $05B352
+        jml single_coin_tracking
+    org $05B329
+        jml multiple_coin_tracking
 pullpc
 
+single_coin_tracking:
+        lda $0DC0
+        beq +
+        dec $0DC0
+    +   
+        lda #$01
+    .add_coins
+        pha 
+        php 
+        sed 
+        rep #$21
+        adc !coin_counter+$00
+        sta !coin_counter+$00
+        sep #$20
+        bcc .done
+        lda !coin_counter+$02
+        adc #$00
+        sta !coin_counter+$02
+        bcc .done
+        lda #$99
+        sta !coin_counter+$00
+        sta !coin_counter+$01
+        sta !coin_counter+$02
+    .done
+        plp
+        pla 
+    .add_energy
+        rep #$20
+        and #$00FF
+        clc 
+        adc !energy_link_transfer
+        sta !energy_link_transfer
+        sep #$20
+        rtl 
 
+multiple_coin_tracking:
+        sta $0DC0
+        lda $00
+        bra single_coin_tracking_add_coins
 
 ;#########################################################################
-;# 
+;# Don't reset Star timer between pipes/doors
 
 pushpc
+    org $00A635
+            lda $1490
+            bne no_music_change
+            lda #$00
+            ora $1490
+            ora $190C
+            beq no_music_change
+            lda $0DDA
+            bpl +
+            and #$7F
+            ora #$40
+        +   
+            sta $0DDA
+        no_music_change:
+            stz $190C
+            bra end_music_change
+    org $00A660 
+        end_music_change:
+            lda $13F4
+            ora $13F5
+
+    org $009738
+    -   
+        jml level_music_hijack
+        db $FB
+        bra -
+        nop 
+    level_music_hijack_end:
+
+    org $00E2F2
+        and #$3F
+
+    org $058551
+        jsl level_music_load
+
+    org $00C533
+        jml pswitch_done
+
 pullpc
 
+level_music_hijack:
+        lda #$00
+        ora $1490
+        bne +
+        lda $0DDA
+        and #$40
+        bne +
+        lda $0DDA
+        and #$BF
+        sta $1DFB
+    +   
+        jml level_music_hijack_end
+
+
+level_music_load:
+        lda #$40
+        trb $0DDA
+        lda $0584DB,x
+        ldx $0DDA
+        bpl +
+        ora #$80
+    +
+        cmp $0DDA
+        bne +
+        ora #$40
+    +   
+        rtl 
+
+pswitch_done:
+        ldy $14AD
+        cpy $14AE
+        bcs +
+        ldy $14AE
+    +   
+        cpy #$01
+        bne .done
+        ldy $190C
+        bne .done
+        lda $1490
+        beq .not_star
+        lda $0DDA
+        bmi .done
+        lda #$0D
+        bra +
+    .not_star
+        lda $0DDA
+        and #$BF
+    +   
+        sta $1DFB
+    .done
+        jml $00C54F
 
 
 ;#########################################################################

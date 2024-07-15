@@ -45,6 +45,38 @@ gm14_hijack:
         beq .no_boss_token
         jsr add_boss_token
     .no_boss_token
+        lda !score_sprite_add_mushroom
+        beq .no_mushroom
+        jsr add_mushroom
+    .no_mushroom
+        lda !score_sprite_add_flower
+        beq .no_flower
+        jsr add_flower
+    .no_flower
+        lda !score_sprite_add_feather
+        beq .no_feather
+        jsr add_feather
+    .no_feather
+        lda !score_sprite_add_star
+        beq .no_star
+        jsr add_star
+    .no_star
+        lda !score_sprite_add_green_yoshi
+        beq .no_green_yoshi
+        jsr add_green_yoshi
+    .no_green_yoshi
+        lda !score_sprite_add_red_yoshi
+        beq .no_red_yoshi
+        jsr add_red_yoshi
+    .no_red_yoshi
+        lda !score_sprite_add_blue_yoshi
+        beq .no_blue_yoshi
+        jsr add_blue_yoshi
+    .no_blue_yoshi
+        lda !score_sprite_add_yellow_yoshi
+        beq .no_yellow_yoshi
+        jsr add_yellow_yoshi
+    .no_yellow_yoshi
         sep #$30
 
         jsr goal_sanity_check
@@ -186,6 +218,20 @@ score_sprite_queue:
         rep #$20
         rts
 
+    add_boss_token:
+        lda !score_sprite_add_boss_token
+        dec 
+        sta !score_sprite_add_boss_token
+        lda !score_sprite_count
+        inc 
+        sta !score_sprite_count
+        tax 
+        sep #$20
+        lda #$1A
+        sta !score_sprite_queue,x
+        rep #$20
+        rts
+
     add_mushroom:
         lda !score_sprite_add_mushroom
         dec 
@@ -228,16 +274,72 @@ score_sprite_queue:
         rep #$20
         rts
 
-    add_boss_token:
-        lda !score_sprite_add_boss_token
+    add_star:
+        lda !score_sprite_add_star
         dec 
-        sta !score_sprite_add_boss_token
+        sta !score_sprite_add_star
         lda !score_sprite_count
         inc 
         sta !score_sprite_count
         tax 
         sep #$20
-        lda #$1A
+        lda #$1B
+        sta !score_sprite_queue,x
+        rep #$20
+        rts
+
+    add_green_yoshi:
+        lda !score_sprite_add_green_yoshi
+        dec 
+        sta !score_sprite_add_green_yoshi
+        lda !score_sprite_count
+        inc 
+        sta !score_sprite_count
+        tax 
+        sep #$20
+        lda #$1C
+        sta !score_sprite_queue,x
+        rep #$20
+        rts
+
+    add_red_yoshi:
+        lda !score_sprite_add_red_yoshi
+        dec 
+        sta !score_sprite_add_red_yoshi
+        lda !score_sprite_count
+        inc 
+        sta !score_sprite_count
+        tax 
+        sep #$20
+        lda #$1D
+        sta !score_sprite_queue,x
+        rep #$20
+        rts
+
+    add_blue_yoshi:
+        lda !score_sprite_add_blue_yoshi
+        dec 
+        sta !score_sprite_add_blue_yoshi
+        lda !score_sprite_count
+        inc 
+        sta !score_sprite_count
+        tax 
+        sep #$20
+        lda #$1E
+        sta !score_sprite_queue,x
+        rep #$20
+        rts
+
+    add_yellow_yoshi:
+        lda !score_sprite_add_yellow_yoshi
+        dec 
+        sta !score_sprite_add_yellow_yoshi
+        lda !score_sprite_count
+        inc 
+        sta !score_sprite_count
+        tax 
+        sep #$20
+        lda #$1F
         sta !score_sprite_queue,x
         rep #$20
         rts

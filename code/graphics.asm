@@ -14,6 +14,18 @@ pushpc
         score_sprites_tiles:
     org $1D8000
         animated_tiles:
+    org $1DB200
+        inventory_gfx:
+            incbin "../data/graphics/inventory_border.bin"
+    org $1DC000
+        inventory_items:
+            incbin "../data/graphics/inventory_items.bin"
+    org $1DD000
+        gfx_blocks:
+            incbin "../data/graphics/blocks.bin"
+    org $1CF000
+        gfx_indicators:
+            incbin "../data/graphics/indicators.bin"
 pullpc
 
 
@@ -387,6 +399,7 @@ gamemode_ow_fade_in:
         inc !gfx_uploaded_flag
         ldx #$04
         jsr upload_player_map_graphics
+        jsr upload_sprite_map_graphics
     .skip
         jsr update_map_palette
         rts
@@ -397,6 +410,22 @@ gamemode_level_main:
         rts 
 
 
+upload_sprite_map_graphics:
+        rep #$20
+        lda.w #$6800
+        sta $2116
+        lda #$1801
+        sta $4320
+        lda.w #inventory_items
+        sta $4322
+        lda #$1000
+        sta $4325
+        ldy.b #inventory_items>>16
+        sty $4324
+        stx $420B
+        sep #$20
+        rts
+
 upload_static_level_gfx:
         rep #$20
         ldy #$80
@@ -404,7 +433,7 @@ upload_static_level_gfx:
         lda #$1801
         sta $4320
     .indicators
-        ldy.b #$1C
+        ldy.b #gfx_indicators>>16
         sty $4324
         ldy #$04
         lda.w #$F000
@@ -445,8 +474,19 @@ upload_static_level_gfx:
         lda #$0020
         sta $4325
         sty $420B
+    ..layer_3
+        lda.w #$EC00
+        sta $4322
+        lda #$4180
+        sta $2116
+        lda #$0050
+        sta $4325
+        sty $420B
 
     ..dragon_coins
+        ldy.b #gfx_blocks>>16
+        sty $4324
+        ldy #$04
         lda.l block_visual_indicator
         and #$0002
         beq ...skip
@@ -561,14 +601,6 @@ upload_static_level_gfx:
         sty $420B
     ...skip
         
-    ..layer_3
-        lda.w #$EC00
-        sta $4322
-        lda #$4180
-        sta $2116
-        lda #$0050
-        sta $4325
-        stx $420B
         sep #$20
         rts 
 
@@ -653,15 +685,6 @@ update_map_palette:
         lda $00B5A5
         sta $2122
         rts 
-pushpc
-    org $1CF000
-        gfx_indicators:
-            incbin "../data/graphics/indicators.bin"
-    org $1CF200
-        gfx_blocks:
-            incbin "../data/graphics/blocks.bin"
-pullpc
-
 
 upload_blocks:
         rep #$20
@@ -675,6 +698,8 @@ upload_blocks:
         lda $14
         and #$0007
         beq .question_blocks
+        cmp #$0001
+        beq .pswitch_blocks
         sep #$20
         rts
 
@@ -689,6 +714,8 @@ upload_blocks:
         lda !shuffled_ow_level
         and #$00FF
         cmp #$0025
+        beq ..castle
+        cmp #$0031
         beq ..castle
         cmp #$000E
         beq ..castle
@@ -718,6 +745,42 @@ upload_blocks:
         sep #$20
         rts 
 
+    .pswitch_blocks
+        lda !shuffled_ow_level
+        and #$00FF
+        cmp #$0025
+        beq ..castle
+        cmp #$0031
+        beq ..castle
+        cmp #$000E
+        beq ..castle
+        lda $14AD
+        and #$00FF
+        bne ..active
+        lda.w #gfx_blocks+$0780
+        bra ..animate
+    ..active
+        lda $14
+        and #$001C
+        lsr #2
+        tax 
+        lda.l .question_block_srcs,x
+    ..animate
+        sta $4322
+        ldx #$04
+        lda #$0990
+        sta $2116
+        lda #$0060
+        sta $4325
+        stx $420B
+        lda #$0920
+        sta $2116
+        lda #$0020
+        sta $4325
+        stx $420B
+    ..castle
+        sep #$20
+        rts 
 
 .question_block_srcs
     dw $0000+gfx_blocks,$0080+gfx_blocks,$0100+gfx_blocks,$0180+gfx_blocks

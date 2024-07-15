@@ -53,7 +53,26 @@ level_palettes:
         cmp #$02
         beq .custom
     .original
+        lda.b #level_cave_original_chocolate_global>>16
+        sta !_ptr+$02
         rep #$30
+        lda.w #level_cave_original_chocolate_global
+        sta !_ptr
+        lda.w #$0041*$02
+        sta !_index
+        lda #$0006
+        sta !_x_span
+        lda #$0000
+        sta !_y_span
+        jsr load_colors
+        lda.w #$0051*$02
+        sta !_index
+        lda #$000E
+        sta !_x_span
+        lda #$0002
+        sta !_y_span
+        jsr load_colors
+
         lda #$7FDD
         jml $00ABF2
     .custom
@@ -236,15 +255,34 @@ pushpc
 pullpc
 
 map_palettes:
+    .inventory_palettes
+        rep #$30
+        lda.w #inventory_colors
+        sta !_ptr+$00
+        lda.w #inventory_colors>>8
+        sta !_ptr+$01
+        lda.w #$0098*$02
+        sta !_index
+        lda #$0007
+        sta !_x_span
+        lda #$0007
+        sta !_y_span
+        jsr load_colors
+        lda #$6B5A
+        sta $0703+($A8*$02)
+        lda #$5AD6
+        sta $0703+($A9*$02)
+        lda #$7FFF
+        sta $0703+($48*$02)
+
         lda.l map_palette_setting
-        cmp #$02
+        and #$00FF
+        cmp #$0002
         beq .custom
     .original
-        rep #$30
         ldy #$B3D8
         jml $00AD2A
     .custom
-        rep #$30
     .prepare_index
         lda $1931
         and #$000F
@@ -303,6 +341,10 @@ map_palettes:
         jsr load_colors
     .return
         jml $00ADA3
+
+inventory_colors:
+    .items
+        dw $0011,$0017,$001F,$02E0,$01FF,$031F,$03FF,$5981
     
 ;#########################################################################
 ;# Edit palette upload when loading a map

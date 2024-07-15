@@ -226,7 +226,6 @@ pushpc
         ;# $10 clouds
             %init_level_group(clouds)
             %load_level_palette_file(atardecer)
-            %load_level_palette_file(charcoal)
             %load_level_palette_file(cloudy)
             %load_level_palette_file(cotton_candy)
             %load_level_palette_file(original_green)

@@ -67,11 +67,11 @@ score_sprites:
         dl icon_score                   ; 18 - Flower
         dl icon_score                   ; 19 - Feather
         dl icon_score                   ; 1A - Boss token
-        dl icon_score                   ; 1B - 
-        dl icon_score                   ; 1C - 
-        dl icon_score                   ; 1D - 
-        dl icon_score                   ; 1E - 
-        dl icon_score                   ; 1F - 
+        dl icon_score                   ; 1B - Star
+        dl icon_score                   ; 1C - Green Yoshi
+        dl icon_score                   ; 1D - Red Yoshi
+        dl icon_score                   ; 1E - Blue Yoshi
+        dl icon_score                   ; 1F - Yellow Yoshi
 
 original_score_sprites:
         lda #$02
@@ -241,31 +241,31 @@ icon_score:
         db $1B      ; 15 coins
         db $0A      ; yoshi egg
         db $0B      ; 1up mushroom
-        db $0B      ; mushroom
-        db $7E      ; flower
-        db $7F      ; feather
+        db $5A      ; mushroom
+        db $5A      ; flower
+        db $5A      ; feather
         db $38      ; boss token
-        db $5A      ;  
-        db $5A      ;  
-        db $5A      ;  
-        db $5A      ;  
-        db $0B      ;  
+        db $5A      ; star
+        db $0A      ; green yoshi
+        db $0A      ; red yoshi
+        db $0A      ; blue yoshi
+        db $0A      ; yellow yoshi
     ..icon_props
         db $34      ; coin
         db $34      ; coin
         db $34      ; coin
         db $34      ; coin
-        db $3A      ; yoshi egg
+        db $30      ; yoshi egg
         db $3A      ; 1up mushroom
-        db $38      ; mushroom
-        db $3A      ; flower
-        db $34      ; feather
+        db $34      ; mushroom
+        db $38      ; flower
+        db $3A      ; feather
         db $34      ; boss token
-        db $34      ;  
-        db $3A      ;  
-        db $38      ;  
-        db $36      ;  
-        db $36      ;  
+        db $36      ; star
+        db $3A      ; green yoshi
+        db $38      ; red yoshi
+        db $36      ; blue yoshi
+        db $34      ; yellow yoshi
 
     ..plus_tile
         db $1A      ; 1 coin
@@ -278,11 +278,11 @@ icon_score:
         db $1A      ; flower
         db $1A      ; feather
         db $1A      ; boss token
-        db $1A      ; 
-        db $1A      ; 
-        db $1A      ; 
-        db $1A      ; 
-        db $1A      ; 
+        db $1A      ; star
+        db $1A      ; green yoshi
+        db $1A      ; red yoshi
+        db $1A      ; blue yoshi
+        db $1A      ; yellow yoshi
     ..plus_props
         db $32      ; 1 coin
         db $32      ; 5 coins
@@ -294,11 +294,11 @@ icon_score:
         db $32      ; flower
         db $32      ; feather
         db $32      ; boss token
-        db $32      ; 
-        db $32      ;  
-        db $32      ;  
-        db $32      ;  
-        db $32      ;  
+        db $32      ; star
+        db $32      ; green yoshi
+        db $32      ; red yoshi
+        db $32      ; blue yoshi
+        db $32      ; yellow yoshi
 
 
     ..num_tile
@@ -312,11 +312,11 @@ icon_score:
         db $4B,$69  ; flower
         db $4B,$69  ; feather
         db $4B,$69  ; boss token
-        db $69,$69  ;  
-        db $69,$69  ;  
-        db $69,$69  ;  
-        db $69,$69  ;  
-        db $69,$69  ; 
+        db $4B,$69  ; star
+        db $4B,$69  ; green yoshi
+        db $4B,$69  ; red yoshi
+        db $4B,$69  ; blue yoshi
+        db $4B,$69  ; yellow yoshi
 
     ..num_props
         db $34,$34  ; 1 coin
@@ -329,11 +329,11 @@ icon_score:
         db $34,$34  ; flower
         db $34,$34  ; feather
         db $34,$34  ; boss token
-        db $34,$34  ;  
-        db $34,$34  ;  
-        db $34,$34  ; 
-        db $34,$34  ;  
-        db $34,$34  ;  
+        db $34,$34  ; star
+        db $34,$34  ; green yoshi
+        db $34,$34  ; red yoshi
+        db $34,$34  ; blue yoshi
+        db $34,$34  ; yellow yoshi 
 
 
     ..oam_2
@@ -351,11 +351,11 @@ icon_score:
         dw .flower
         dw .feather
         dw .boss_token
-        dw .handle_movement
-        dw .handle_movement
-        dw .handle_movement
-        dw .handle_movement
-        dw .handle_movement
+        dw .star
+        dw .green_yoshi
+        dw .red_yoshi
+        dw .blue_yoshi
+        dw .yellow_yoshi
 
     .one_coin
         lda.b #1
@@ -399,11 +399,31 @@ icon_score:
         jmp .handle_movement
 
     .mushroom
+        lda #$00
         bra .shared_item
     .flower
+        lda #$01
         bra .shared_item
     .feather
+        lda #$02
+        bra .shared_item
+    .star
+        lda #$03
+        bra .shared_item
+    .green_yoshi
+        lda #$04
+        bra .shared_item
+    .red_yoshi
+        lda #$05
+        bra .shared_item
+    .blue_yoshi
+        lda #$06
+        bra .shared_item
+    .yellow_yoshi
+        lda #$07
+        bra .shared_item
     .shared_item
+        jsl add_item
         lda #$0B
         sta $1DFC
         jmp .handle_movement

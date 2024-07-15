@@ -49,3 +49,8 @@ org !main_code_location
     incsrc "code/palette_loader.asm"
     incsrc "code/score_sprites.asm"
     incsrc "code/graphics.asm"
+    incsrc "code/inventory.asm"
+    incsrc "code/irq.asm"
+
+;org $00A273
+;    db $00
