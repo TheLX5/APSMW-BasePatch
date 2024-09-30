@@ -6,32 +6,59 @@ includefrom "main.asm"
 ;# Track level clears for indicators
 
 pushpc
-org $04E5EE
-    jmp check_events
+    ORG $00A0EB
+        db $20
 
-org $04A300
-    check_events:
-        phx 
-        jsl get_translevel_num
-        lda $0DD5
-        beq .dont_sync
-        bmi .dont_sync
-        cmp #$05
-        bcs .dont_sync
-        and #$07
-        tax 
-        lda.l $009E7D,x
-        ldx !shuffled_ow_level
-        ora !level_clears,x
-        sta !level_clears,x
-    .dont_sync
-        plx 
-        lda $0DD5
-        cmp #$02
-        bne .no_secret
-        inc $1DEA
-    .no_secret
-        jmp $E5F8
+    ORG $04E6FA
+        dw $E496
+
+    ORG $04E73E
+        db $FF
+
+    ORG $04E75E
+        STZ $1494
+
+    ORG $04EAAE
+        BRA $04
+
+    ORG $04EACC
+        LDA $1495
+        CLC
+        ADC #$0D
+        STA $1495
+        RTS
+pullpc
+
+;#########################################################################
+;# Track level clears for indicators
+
+pushpc
+    org $04E5EE
+        jmp check_events
+
+    org $04A300
+        check_events:
+            phx 
+            jsl get_translevel_num
+            lda $0DD5
+            beq .dont_sync
+            bmi .dont_sync
+            cmp #$05
+            bcs .dont_sync
+            and #$07
+            tax 
+            lda.l $009E7D,x
+            ldx !shuffled_ow_level
+            ora !level_clears,x
+            sta !level_clears,x
+        .dont_sync
+            plx 
+            lda $0DD5
+            cmp #$02
+            bne .no_secret
+            inc $1DEA
+        .no_secret
+            jmp $E5F8
 pullpc
 
 ;#########################################################################
