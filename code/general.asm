@@ -563,6 +563,8 @@ pushpc
         +   
             sta $0DDA
         no_music_change:
+            stz $14AD
+            stz $14AE
             stz $190C
             bra end_music_change
     org $00A660 
@@ -640,6 +642,79 @@ pswitch_done:
         sta $1DFB
     .done
         jml $00C54F
+
+
+;#########################################################################
+;# 
+
+pushpc
+    ORG $07F335+$45			;/ Set the sprite clipping for solid 16x16. The directional coin sprite doesn't interact with Mario/sprites otherwise, so this doesn't need to
+    db $0C					;\ be changed back to it's original clipping when the P-switch isn't active.
+
+    ORG $07F4C7+$45			;/
+    db $A2					;\ Enable "Don't use default interaction" and "Process interaction every frame" tweaker bits.
+
+    ORG $02E266
+        JML SolidDirCoins
+
+pullpc
+
+SolidDirCoins:
+    LDA $14AD			;/
+    BEQ .NoSolid			;\ Don't make the sprite solid if the blue P-Switch isn't active.
+
+    LDA $D8,x				;/
+    PHA						;|
+    SEC						;|
+    SBC #$01				;|
+    STA $D8,x				;| Shift sprite up a pixel. This isn't strictly necessary, it just looks a bit better when Mario's riding the block.
+    LDA $14D4,x				;|
+    PHA						;|
+    SBC #$00				;|
+    STA $14D4,x				;\
+    JSL $01B44F		; Solid sprite routine.
+    PLA						;/
+    STA $14D4,x				;|
+    PLA						;| Restore Y position.
+    STA $D8,x				;\
+
+    .NoSolid
+    LDA $13					;/
+    AND #$03				;| Restore original code.
+    JML $02E26A		;\
+
+;#########################################################################
+;# Remove blush overlay tile
+
+pushpc
+    org $03ACE1
+        jmp $AD18
+pullpc
+
+
+
+;#########################################################################
+;# 
+
+pushpc
+pullpc
+
+
+
+;#########################################################################
+;# 
+
+pushpc
+pullpc
+
+
+
+;#########################################################################
+;# 
+
+pushpc
+pullpc
+
 
 
 ;#########################################################################
