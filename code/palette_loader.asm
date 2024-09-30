@@ -261,17 +261,34 @@ map_palettes:
         sta !_ptr+$00
         lda.w #inventory_colors>>8
         sta !_ptr+$01
-        lda.w #$0098*$02
+        lda.w #$00C8*$02
         sta !_index
         lda #$0007
         sta !_x_span
-        lda #$0007
+        lda #$0000
         sta !_y_span
         jsr load_colors
-        lda #$6B5A
-        sta $0703+($A8*$02)
-        lda #$5AD6
-        sta $0703+($A9*$02)
+        lda.w #$00D8*$02
+        sta !_index
+        lda #$0007
+        sta !_x_span
+        lda #$0000
+        sta !_y_span
+        jsr load_colors
+        lda.w #$00E8*$02
+        sta !_index
+        lda #$0007
+        sta !_x_span
+        lda #$0000
+        sta !_y_span
+        jsr load_colors
+        lda.w #$00F8*$02
+        sta !_index
+        lda #$0007
+        sta !_x_span
+        lda #$0000
+        sta !_y_span
+        jsr load_colors
         lda #$7FFF
         sta $0703+($48*$02)
 
@@ -343,9 +360,16 @@ map_palettes:
         jml $00ADA3
 
 inventory_colors:
-    .items
-        dw $0011,$0017,$001F,$02E0,$01FF,$031F,$03FF,$5981
-    
+    .row_C
+        dw $0000,$7FFF,$0011,$0017,$001F,$0000,$7AAB,$5981
+    .row_D
+        dw $0000,$7FFF,$6D08,$6DAD,$7E31,$5AD6,$6B5A,$5981
+    .row_E
+        dw $0000,$7FFF,$01FF,$031F,$03FF,$00B7,$023F,$5981
+    .row_F
+        dw $0000,$7FFF,$01E0,$02E0,$0380,$00B7,$023F,$5981
+
+
 ;#########################################################################
 ;# Edit palette upload when loading a map
 

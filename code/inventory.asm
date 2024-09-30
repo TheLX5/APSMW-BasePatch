@@ -254,7 +254,7 @@ endif
 		STA $021E,y			; Set the ones digit's tile.
 		PLX
 		
-		LDA #$30
+		LDA #$3E
 		STA $021B,y
 		STA $021F,y			; Set the digits' properties
 		
@@ -523,6 +523,8 @@ inventory_disable_items:
 		sta $021A,y
 		lda $021B,y
 		sta $021F,y
+		lda #$38
+		sta $021B,y
 		phy 
 		tya 
 		lsr #2
@@ -551,7 +553,7 @@ max_items:	db $63,$63,$63,$63,$63,$63,$63,$63		; The maximum amount of items tha
 		
 item_tiles:	db $80,$84,$88,$8C,$A0,$A4,$A8,$AC		; The item tiles.
 		
-item_props:	db $32,$32,$32,$32,$32,$32,$32,$32		; The item yxppccct properties.
+item_props:	db $38,$3E,$3C,$3C,$3E,$38,$3A,$3C		; The item yxppccct properties.
 		
 item_disable:
 		dl !ability_byte_2 : db $01
@@ -580,9 +582,12 @@ mushroom:
         LDA #$01
         LDX $19
         BEQ powerup_shared
+        ldx $0DB3
+		lda $0DBC,x
+		sta $00
 		ldx $19
 		lda.l powerup_box_lut,x
-		cmp $0DC2
+		cmp $00
 		bne powerup_shared_box
 	.return
         PLA
@@ -596,9 +601,12 @@ flower:
         LDA #$03
         CMP $19
         BNE powerup_shared
+        ldx $0DB3
+		lda $0DBC,x
+		sta $00
 		ldx $19
 		lda.l powerup_box_lut,x
-		cmp $0DC2
+		cmp $00
 		bne powerup_shared_box
 	.return
         PLA
@@ -612,9 +620,12 @@ cape:
         LDA #$02
         CMP $19
         BNE powerup_shared
+        ldx $0DB3
+		lda $0DBC,x
+		sta $00
 		ldx $19
 		lda.l powerup_box_lut,x
-		cmp $0DC2
+		cmp $00
 		bne powerup_shared_box
 	.return
         PLA
@@ -647,7 +658,9 @@ powerup_shared:
 	.box
 		lda.l powerup_box_lut,x
 		beq sound_shared
+        ldx $0DB3
 		sta $0DC2
+		sta $0DBC,x
 sound_shared:
         LDA #$0A
         STA $1DF9
@@ -726,6 +739,8 @@ draw_item_box:
 		ldx $0DC2
 		lda.l .tiles-$01,x
 		sta $0302,y
+		lda.l .tiles_props-$01,x
+		sta $0303,y
 		rts 
 
 	.x_disp
@@ -733,9 +748,12 @@ draw_item_box:
 	.y_disp
 		db $00,$00,$10,$10,$08
 	.props
-		db $32,$72,$B2,$F2,$32
+		db $38,$78,$B8,$F8,$38
 	.tiles
 		db $80,$84,$8C,$88
+	.tiles_props
+		db $38,$3E,$3C,$3C
+
 
 draw_energy_link_coins:
 		rep #$20
@@ -790,7 +808,7 @@ draw_coin_counter:
 		lda.l digits,x
 		plx 
 		sta $0202,y
-		lda #$30
+		lda #$3E
 		sta $0203,y
 		phy 
 		tya 
@@ -844,9 +862,9 @@ draw_coin_counter:
 		sta $0202,y
 		lda #$FA
 		sta $0206,y
-		lda #$32
+		lda #$38
 		sta $0203,y
-		lda #$30
+		lda #$38
 		sta $0207,y
 		phy 
 		tya 

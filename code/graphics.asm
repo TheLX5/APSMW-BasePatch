@@ -662,28 +662,48 @@ upload_player_map_graphics:
 
 
 update_map_palette:
-        lda #$A3
-        sta $2121
-        lda $00B59C
-        sta $2122
-        lda $00B59D
-        sta $2122
-        lda $00B59E
-        sta $2122
-        lda $00B59F
-        sta $2122
-        lda $00B5A0
-        sta $2122
-        lda $00B5A1
-        sta $2122
-        lda $00B5A2
-        sta $2122
-        lda $00B5A3
-        sta $2122
-        lda $00B5A4
-        sta $2122
-        lda $00B5A5
-        sta $2122
+        rep #$20
+        ldy #$A3
+        sty $2121
+        lda #$2200
+        sta $4320
+        lda.w #$B59C
+        sta $4322
+        ldy #$00    ; bank
+        sty $4324
+        lda #$000A
+        sta $4325
+        ldx #$04
+        stx $420B
+
+        lda.l sprite_map_colors
+        and #$00FF
+        beq .nope
+
+        ldy #$98
+        sty $2121
+        lda.w #$EC50
+        sta $4322
+        ldy #$1C    ; bank
+        sty $4324
+        lda #$0010
+        sta $4325
+        stx $420B
+
+        ldy #$A8
+        sty $2121
+        lda #$0010
+        sta $4325
+        stx $420B
+
+        ldy #$B8
+        sty $2121
+        lda #$0010
+        sta $4325
+        stx $420B
+
+    .nope
+        sep #$20
         rts 
 
 upload_blocks:

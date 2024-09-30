@@ -20,6 +20,7 @@ block_collect_behavior      = $03BFB1
 block_visual_indicator      = $03BFB2
 block_contents              = $03BFB3
 energy_link                 = $03BFB4
+sprite_map_colors           = $03BFB5
 
 ;# Code & Data locations
 
