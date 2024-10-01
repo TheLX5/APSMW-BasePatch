@@ -1,28 +1,31 @@
 ;##################################################################################################
 ;# SMW AP Base patch
-;# ASM made by PoryGone & lx5
+;# ASM made by PoryGone & lx5 (& other people)
 ;# 
 ;# All the static ASM/ROM data for SMW's AP implementation can be found here.
 
 ;#########################################################################
 ;# Basic imports/setup
 
-lorom
+if read1($00FFD5) == $23
+    sa1rom
+    !sa1 = 1
+    !dp = $3000
+    !addr = $6000
+    !bank = $000000
+else
+    lorom
+    !sa1 = 0
+    !dp = $0000
+    !addr = $0000
+    !bank = $800000
+endif
 
 incsrc "defines.asm"
 
 ;#########################################################################
 ;# AP Settings defaults
 
-
-;#########################################################################
-;# ROM expansion
-
-;# ROM is now 1MiB
-org $00FFD7
-    db $0A
-org $1FFFFF
-    db $FF
 
 ;########################################################################
 ;# Code imports
@@ -37,6 +40,8 @@ org !custom_level_palettes_ptrs
 org !custom_map_palettes_ptrs
     map_palette_pointers:
     
+; TODO: Resolver problemas del OW en SA-1 (probablemente sea overworld.asm)
+
 org !main_code_location
     incsrc "code/fastrom.asm"
     incsrc "code/sram.asm"

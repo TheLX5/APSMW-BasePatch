@@ -1,25 +1,21 @@
+;#########################################################################
+;# 
+
+if !sa1 == 0
+
 pushpc
     org $008385
         jml irq_main
         nop 
-    org $00827C
-        jsl nmi_main
-        nop
 pullpc
 
-;#########################################################################
-;# 
-
-inventory_layer_1_offsets:
-        db $FF,$1F
-
 irq_main:
-        lda $0100
+        lda $0100|!addr
         cmp #$0E
         bne .return
 
-        ldy $0DD6
-        ldx $1F1A,y
+        ldy $0DD6|!addr
+        ldx $1F1A|!addr,y
         lda.l inventory_layer_1_offsets,x
         sbc !inventory_y_pos
         ldx #$01
@@ -40,20 +36,24 @@ irq_main:
 
     .return
         lda #$81
-        ldy $0D9B
+        ldy $0D9B|!addr
         jml $00838A
+endif
 
 ;#########################################################################
 ;# 
 
+pushpc
+    org $00827C
+        jsl nmi_main
+        nop
+pullpc
+
 inventory_end:
         db $00,$FC
-		
-inventory_y_speeds:
-        db $04,$FC
 
 nmi_main:
-        ldy $0100
+        ldy $0100|!addr
         cpy #$0E
         bne .return
 
@@ -78,7 +78,7 @@ nmi_main:
 
     .done
 
-        lda #$81
+        ldx #$81
         ldy !inventory_y_pos
         beq .return
         tya 
@@ -86,9 +86,9 @@ nmi_main:
         sbc #$20
         sta $4209
         stz $420A
-        lda #$A1
+        ldx #$A1
     .return
-        ldy $13C6
+        ldy $13C6|!addr
         cpy #$08
         rtl 
 
@@ -113,8 +113,8 @@ dma_vram:
         lda #$80
         sta $2115
 
-        ldy $0DD6
-        lda $1F1A,y
+        ldy $0DD6|!addr
+        lda $1F1A|!addr,y
         asl 
         tax 
         rep #$20

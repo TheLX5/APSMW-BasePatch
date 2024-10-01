@@ -37,18 +37,18 @@ blocksanity_main:
 
 
 blocksanity_flying_init:
-    lda $D8,x
+    lda !D8,x
     and #$F0
     sta !sprite_blocksanity_y_lo,x
-    lda $14D4,x
+    lda !14D4,x
     sta !sprite_blocksanity_y_hi,x
-    lda $14E0,x
+    lda !14E0,x
     sta !sprite_blocksanity_x_hi,x
-    lda $E4,x
+    lda !E4,x
     and #$F0
     sta !sprite_blocksanity_x_lo,x
     jsr blocksanity_keep_collected_flying_block
-    lda $E4,x
+    lda !E4,x
     lsr #2
     jml $01AD5D
 
@@ -71,7 +71,7 @@ blocksanity_flying_main:
     plx 
     ply 
     plb 
-    lda $E4,x
+    lda !E4,x
     sta $9A
     rtl 
     
@@ -174,7 +174,7 @@ pullpc
 
 prize_from_bonus_block:
     lda #$06
-    ldy $0DC0
+    ldy $0DC0|!addr
     bne .ignore
     phx 
     lda !current_ow_level
@@ -231,18 +231,18 @@ blocksanity_keep_collected:
     lda.l block_collect_behavior
     and #$01
     beq ..normal_behavior
-    lda $E4,x
+    lda !E4,x
     lsr #4
     sta $00
-    lda $D8,x
+    lda !D8,x
     and #$F0
     ora $00
     tay 
-    lda $14D4,x
+    lda !14D4,x
     asl #4
     sta $0A
-    lda $14E0,x
-    sta $1BA1
+    lda !14E0,x
+    sta $1BA1|!addr
     jsr .check_block
     beq ..normal_behavior
     cmp #$FF
@@ -328,7 +328,7 @@ blocksanity_keep_collected:
     tya 
     and #$F0
     pha 
-    lda $1BA1
+    lda $1BA1|!addr
     pha 
     tya 
     asl #4
@@ -484,7 +484,7 @@ change_block_appareance:
     phx 
     cpy #$0400
     bcs .invalid
-    lda $0100
+    lda $0100|!addr
     and #$00FF
     cmp #$000B
     bcc .may_be_level
@@ -514,7 +514,7 @@ change_block_appareance:
     dw .pswitch_block           ; $0018
 
 .invalid
-    lda $0FBE,y
+    lda $0FBE|!addr,y
     sta $0A
     plx 
     rtl 
@@ -579,7 +579,7 @@ change_block_appareance:
     plx 
     rtl 
 ..invalid
-    lda $0FBE,y
+    lda $0FBE|!addr,y
     sta $0A
     plx 
     rtl 
@@ -610,7 +610,7 @@ change_block_appareance:
     plx 
     rtl 
 ..invalid
-    lda $0FBE,y
+    lda $0FBE|!addr,y
     sta $0A
     plx 
     rtl 
@@ -657,7 +657,7 @@ change_block_appareance:
     plx 
     rtl 
 ..invalid
-    lda $0FBE,y
+    lda $0FBE|!addr,y
     sta $0A
     plx 
     rtl 
@@ -701,7 +701,7 @@ change_block_appareance:
     plx 
     rtl 
 ..invalid
-    lda $0FBE,y
+    lda $0FBE|!addr,y
     sta $0A
     plx 
     rtl 
@@ -746,7 +746,7 @@ change_block_appareance:
     plx 
     rtl 
 ..invalid
-    lda $0FBE,y
+    lda $0FBE|!addr,y
     sta $0A
     plx 
     rtl 

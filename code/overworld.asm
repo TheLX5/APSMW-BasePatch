@@ -16,16 +16,16 @@ pushpc
         db $FF
 
     ORG $04E75E
-        STZ $1494
+        STZ $1494|!addr
 
     ORG $04EAAE
         BRA $04
 
     ORG $04EACC
-        LDA $1495
+        LDA $1495|!addr
         CLC
         ADC #$0D
-        STA $1495
+        STA $1495|!addr
         RTS
 pullpc
 
@@ -40,7 +40,7 @@ pushpc
         check_events:
             phx 
             jsl get_translevel_num
-            lda $0DD5
+            lda $0DD5|!addr
             beq .dont_sync
             bmi .dont_sync
             cmp #$05
@@ -53,10 +53,10 @@ pushpc
             sta !level_clears,x
         .dont_sync
             plx 
-            lda $0DD5
+            lda $0DD5|!addr
             cmp #$02
             bne .no_secret
-            inc $1DEA
+            inc $1DEA|!addr
         .no_secret
             jmp $E5F8
 pullpc
@@ -68,17 +68,17 @@ pushpc
     org $04A340
         get_translevel_num:
                 rep #$30
-                ldx $0DD6
-                lda $1F1F,x
+                ldx $0DD6|!addr
+                lda $1F1F|!addr,x
                 sta $00
-                lda $1F21,x
+                lda $1F21|!addr,x
                 sta $02
                 txa 
                 lsr #2
                 tax 
                 jsr $9885
                 ldx $04
-                lda $7ED000,x
+                lda $40D000,x
                 sep #$30
                 sta !shuffled_ow_level
                 tax 
@@ -158,7 +158,15 @@ pushpc
         jsl prepare_dynamic_tilemap
 pullpc
 
+
+
 prepare_dynamic_tilemap:
+    if !sa1 == 1
+        %invoke_sa1(.sa1)
+        rtl
+    endif
+
+.sa1
         jsl $048241     ; Run OW main
 
     .handle_powerup:
@@ -259,28 +267,28 @@ prepare_dynamic_tilemap:
 
     .handle_yellow_switch:
         ldy.b #!icon_not_obtained
-        lda $1F28
+        lda $1F28|!addr
         beq $02
         ldy.b #!icon_obtained
         tya 
         sta !ow_tilemap_switches+$00
     .handle_green_switch:
         ldy.b #!icon_not_obtained
-        lda $1F27
+        lda $1F27|!addr
         beq $02
         ldy.b #!icon_obtained
         tya 
         sta !ow_tilemap_switches+$02
     .handle_red_switch:
         ldy.b #!icon_not_obtained
-        lda $1F2A
+        lda $1F2A|!addr
         beq $02
         ldy.b #!icon_obtained
         tya 
         sta !ow_tilemap_switches+$04
     .handle_blue_switch:
         ldy.b #!icon_not_obtained
-        lda $1F29
+        lda $1F29|!addr
         beq $02
         ldy.b #!icon_obtained
         tya 
@@ -294,7 +302,7 @@ prepare_dynamic_tilemap:
         sta !ow_tilemap_switches+$08
 
         jsl clear_tilemap_flags
-        lda $13D9
+        lda $13D9|!addr
         cmp #$01
         beq process_level
         cmp #$03
@@ -510,7 +518,7 @@ pushpc
 pullpc
 
 draw_ow_tilemap:
-        lda $13D9
+        lda $13D9|!addr
         cmp #$0A
         bne write_tilemap
         jml $008229

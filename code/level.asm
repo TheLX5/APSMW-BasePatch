@@ -8,7 +8,7 @@ pushpc
 pullpc
 
 gm14_hijack:
-        lda $0100
+        lda $0100|!addr
         cmp #$14
         bne .invalid
         lda $71
@@ -129,7 +129,7 @@ score_sprite_queue:
         sta !score_sprite_y_hi,y
         lda #$30
         sta !score_sprite_timer,y
-        lda $13F9
+        lda $13F9|!addr
         sta !score_sprite_layer,y
         rts 
 
@@ -359,9 +359,9 @@ goal_sanity_check:
     .check_count
         sep #$20
         lda !goal_item_count
-        cmp $1F24,x
+        cmp $1F24|!addr,x
         beq .return
-        sta $1F24,x
+        sta $1F24|!addr,x
     .return
         sep #$20
         rts 

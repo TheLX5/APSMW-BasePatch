@@ -127,7 +127,7 @@ pullpc
 
 player_code:
         rep #$20
-        ldy $0D84
+        ldy $0D84|!addr
         bne .upload_player_palette
         jmp .skip_everything
     .upload_player_palette
@@ -136,7 +136,7 @@ player_code:
         lda #$2200
         sta $4320
         tay 
-        lda $0D82
+        lda $0D82|!addr
         sta $4322
         sty $4324
         lda #$0014
@@ -155,7 +155,7 @@ player_code:
         sta $2116
         tay  
     -   
-        lda $0D85,y
+        lda $0D85|!addr,y
         sta $4322
         lda #$0040
         sta $4325
@@ -168,7 +168,7 @@ player_code:
         sta $2116
         tay  
     -   
-        lda $0D8F,y
+        lda $0D8F|!addr,y
         sta $4322
         lda #$0040
         sta $4325
@@ -177,12 +177,12 @@ player_code:
         cpy #$06
         bne -
     .upload_player_extended
-        ldy $0D9B
+        ldy $0D9B|!addr
         cpy #$02
         beq .skip_everything
         lda #$60C0
         sta $2116
-        lda $0D99
+        lda $0D99|!addr
         sta $4322
         lda #$0040
         sta $4325
@@ -194,28 +194,28 @@ player_code:
         lda #$6060
         sta $2116
         ldy #$06
-        cpy $0D84
+        cpy $0D84|!addr
         bcs ..skip
     -   
-        lda $0D85,y
+        lda $0D85|!addr,y
         sta $4322
         lda #$0040
         sta $4325
         stx $420B
         iny #2
-        cpy $0D84
+        cpy $0D84|!addr
         bcc -
         lda #$6160
         sta $2116
         ldy #$06
     -   
-        lda $0D8F,y
+        lda $0D8F|!addr,y
         sta $4322
         lda #$0040
         sta $4325
         stx $420B
         iny #2
-        cpy $0D84
+        cpy $0D84|!addr
         bcc -
 
     ..skip
@@ -314,7 +314,7 @@ pullpc
 fix_berries:
         ldy.b #animated_tiles>>16
         sty $4324
-        lda $0D76
+        lda $0D76|!addr
         sta $4322
         rtl 
 
@@ -325,9 +325,9 @@ fix_berries:
 !gfx_uploaded_flag = $7C
 
 gamemode_code:
-        lda $0D9B
+        lda $0D9B|!addr
         bmi +
-        lda $0100
+        lda $0100|!addr
         asl 
         tax 
         jsr (.ptrs,x)

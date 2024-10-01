@@ -8,7 +8,7 @@ pushpc
 pullpc
 
 handle_traps:
-        lda $0100
+        lda $0100|!addr
         cmp #$14
         bne .invalid
         lda $71
@@ -102,35 +102,35 @@ spawn_thwimp:
         tyx 
         stz !thwimp_trap
         lda #$10
-        sta $1DF9
+        sta $1DF9|!addr
         lda #$27
-        sta $9E,x
+        sta !9E,x
         lda #$08
-        sta $14C8,x
+        sta !14C8,x
         jsl $07F7D2
         lda $94
-        sta $E4,x
+        sta !E4,x
         lda $95
-        sta $14E0,x
+        sta !14E0,x
         lda $1C
         sec 
         sbc #$0F
-        sta $D8,x
+        sta !D8,x
         lda $1D
         sbc #$00
-        sta $14D4,x
-        lda $1686,x
+        sta !14D4,x
+        lda !1686,x
         ora #$80
-        sta $1686,x
+        sta !1686,x
         stx !thwimp_index
         rts 
 
 handle_thwimp:
         ldx !thwimp_index
         bmi .return
-        lda $14D4,x
+        lda !14D4,x
         xba 
-        lda $D8,x
+        lda !D8,x
         rep #$20
         sec 
         sbc $96
@@ -138,8 +138,8 @@ handle_thwimp:
         bmi .return
         lda #$FF
         sta !thwimp_index
-        lda $1686,x
+        lda !1686,x
         and #$7F
-        sta $1686,x
+        sta !1686,x
     .return
         rts 

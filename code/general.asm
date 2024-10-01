@@ -57,8 +57,10 @@ pushpc
     org $01B9CD
         dw !special_world_clear_flag
 
-    org $02A986
-        dw !special_world_clear_flag
+    if !sa1 == 0
+        org $02A986
+            dw !special_world_clear_flag
+    endif
 
     org $0CAE0F
         dw !special_world_clear_flag
@@ -83,26 +85,26 @@ pushpc
         cpx #$02
 
     org $008F9D
-        lda $0F1D,x
+        lda $0F1D|!addr,x
 
     org $008FA4
-        sta $0F1D,x
+        sta $0F1D|!addr,x
 
     org $008FA7
-        sta $0F02,x 
+        sta $0F02|!addr,x 
 
     org $008FAF
-        lda $0F1D,x
+        lda $0F1D|!addr,x
     org $008FB7
-        sta $0F02,x
+        sta $0F02|!addr,x
     org $008FBD
-        sta $0F1D,x
+        sta $0F1D|!addr,x
     org $008FC1
         cpx #$03
 
     ; # Move Dragon coins one spot to the left & fix tilemap
     org $008FEF
-        sta $0EFE,x
+        sta $0EFE|!addr,x
     org $008C94
         db $3C
     org $008C9C
@@ -120,7 +122,7 @@ pullpc
 
     init_ram:
         lda #$AA
-        sta $0400
+        sta $0400|!addr
     clear_level_data:
             lda #$00
             ldx #$5F
@@ -185,7 +187,7 @@ pushpc
         jsr yoshi_ram_message
     org $05DC60
         yoshi_ram_message:
-            lda $1426
+            lda $1426|!addr
             cmp #$03
             beq .yoshi_message
             lda $A5D9,y
@@ -193,7 +195,7 @@ pushpc
         .yoshi_message
             phx 
             tyx 
-            lda.l $7EC200,x
+            lda.l !message_box_buffer,x
             plx 
             rts 
 
@@ -215,12 +217,12 @@ pullpc
 bowser_infinite_balls:
         lda.l goal_setting
         bne .nope
-        lda $0F48
+        lda $0F48|!addr
         cmp.l required_bosses_setting
         bcc .nope
-        inc $14B8
+        inc $14B8|!addr
     .nope
-        lda $14B8
+        lda $14B8|!addr
         jml $03A50F
 
 ;#########################################################################
@@ -268,7 +270,7 @@ repoint_level_table:
         lda.l shuffled_level_table,x
         rtl 
     .nope
-        lda $7ED000,x
+        lda $40D000,x
         rtl 
 
 fix_ow_level_check:
@@ -310,13 +312,13 @@ pushpc
 pullpc
 
 collected_paths:
-        lda $0100
+        lda $0100|!addr
         cmp #$0B
         bne +
         jsl $04DAAD 
     +   
-        inc $0100
-        lda $0DAF
+        inc $0100|!addr
+        lda $0DAF|!addr
         rtl 
 
 ;#########################################################################
@@ -329,10 +331,10 @@ pushpc
 pullpc
 
 fix_choco_island_2:
-        lda $1F2F+$04
+        lda.w ($1F2F+$04)|!addr
         and #$08
         bne .dc_room
-        lda $1422
+        lda $1422|!addr
         cmp #$04
         beq .dc_room
     .rex_room
@@ -506,9 +508,9 @@ pushpc
 pullpc
 
 single_coin_tracking:
-        lda $0DC0
+        lda $0DC0|!addr
         beq +
-        dec $0DC0
+        dec $0DC0|!addr
     +   
         lda #$01
     .add_coins
@@ -541,7 +543,7 @@ single_coin_tracking:
         rtl 
 
 multiple_coin_tracking:
-        sta $0DC0
+        sta $0DC0|!addr
         lda $00
         bra single_coin_tracking_add_coins
 
@@ -550,27 +552,27 @@ multiple_coin_tracking:
 
 pushpc
     org $00A635
-            lda $1490
+            lda $1490|!addr
             bne no_music_change
             lda #$00
-            ora $1490
-            ora $190C
+            ora $1490|!addr
+            ora $190C|!addr
             beq no_music_change
-            lda $0DDA
+            lda $0DDA|!addr
             bpl +
             and #$7F
             ora #$40
         +   
-            sta $0DDA
+            sta $0DDA|!addr
         no_music_change:
-            stz $14AD
-            stz $14AE
-            stz $190C
+            stz $14AD|!addr
+            stz $14AE|!addr
+            stz $190C|!addr
             bra end_music_change
     org $00A660 
         end_music_change:
-            lda $13F4
-            ora $13F5
+            lda $13F4|!addr
+            ora $13F5|!addr
 
     org $009738
     -   
@@ -593,53 +595,53 @@ pullpc
 
 level_music_hijack:
         lda #$00
-        ora $1490
+        ora $1490|!addr
         bne +
-        lda $0DDA
+        lda $0DDA|!addr
         and #$40
         bne +
-        lda $0DDA
+        lda $0DDA|!addr
         and #$BF
-        sta $1DFB
+        sta $1DFB|!addr
     +   
         jml level_music_hijack_end
 
 
 level_music_load:
         lda #$40
-        trb $0DDA
+        trb $0DDA|!addr
         lda $0584DB,x
-        ldx $0DDA
+        ldx $0DDA|!addr
         bpl +
         ora #$80
     +
-        cmp $0DDA
+        cmp $0DDA|!addr
         bne +
         ora #$40
     +   
         rtl 
 
 pswitch_done:
-        ldy $14AD
-        cpy $14AE
+        ldy $14AD|!addr
+        cpy $14AE|!addr
         bcs +
-        ldy $14AE
+        ldy $14AE|!addr
     +   
         cpy #$01
         bne .done
-        ldy $190C
+        ldy $190C|!addr
         bne .done
-        lda $1490
+        lda $1490|!addr
         beq .not_star
-        lda $0DDA
+        lda $0DDA|!addr
         bmi .done
         lda #$0D
         bra +
     .not_star
-        lda $0DDA
+        lda $0DDA|!addr
         and #$BF
     +   
-        sta $1DFB
+        sta $1DFB|!addr
     .done
         jml $00C54F
 
@@ -660,23 +662,23 @@ pushpc
 pullpc
 
 SolidDirCoins:
-    LDA $14AD			;/
+    LDA $14AD|!addr			;/
     BEQ .NoSolid			;\ Don't make the sprite solid if the blue P-Switch isn't active.
 
-    LDA $D8,x				;/
+    LDA !D8,x				;/
     PHA						;|
     SEC						;|
     SBC #$01				;|
-    STA $D8,x				;| Shift sprite up a pixel. This isn't strictly necessary, it just looks a bit better when Mario's riding the block.
-    LDA $14D4,x				;|
+    STA !D8,x				;| Shift sprite up a pixel. This isn't strictly necessary, it just looks a bit better when Mario's riding the block.
+    LDA !14D4,x				;|
     PHA						;|
     SBC #$00				;|
-    STA $14D4,x				;\
+    STA !14D4,x				;\
     JSL $01B44F		; Solid sprite routine.
     PLA						;/
-    STA $14D4,x				;|
+    STA !14D4,x				;|
     PLA						;| Restore Y position.
-    STA $D8,x				;\
+    STA !D8,x				;\
 
     .NoSolid
     LDA $13					;/

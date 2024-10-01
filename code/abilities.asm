@@ -21,7 +21,7 @@ lock_run:
         lda !ability_byte_1
         bpl .not_unlocked
         txa 
-        sta $13E4
+        sta $13E4|!addr
     .not_unlocked
         txa 
         plx 
@@ -53,8 +53,8 @@ lock_carry_throw_block:
         lda !ability_byte_1
         and #$40
         beq .not_unlocked
-        lda $148F
-        ora $187A
+        lda $148F|!addr
+        ora $187A|!addr
         rtl 
     .not_unlocked
         lda #$01
@@ -65,8 +65,8 @@ lock_carry_springboard:
         and #$40
         beq .not_unlocked
         lda #$0B
-        sta $14C8,x
-        stz $1602,x
+        sta !14C8,x
+        stz !1602,x
     .not_unlocked
         rtl 
 
@@ -75,10 +75,10 @@ lock_carry_sprites:
         and #$40
         beq +
         lda #$0B
-        sta $14C8,x
-        inc $1470
+        sta !14C8,x
+        inc $1470|!addr
         lda #$08
-        sta $1498
+        sta $1498|!addr
         jml $01AA73
     +   
         jml $01AA74
@@ -88,9 +88,9 @@ lock_carry_yoshi:
         and #$40
         beq .not_unlocked
         lda #$12
-        sta $14A3
+        sta $14A3|!addr
         lda #$21
-        sta $1DFC
+        sta $1DFC|!addr
     .not_unlocked
         rtl 
 
@@ -143,7 +143,7 @@ lock_pswitch:
     .not_unlocked
         tya 
         ply 
-        sta $14AD,y
+        sta $14AD|!addr,y
         rtl
 
 ;#########################################################################
@@ -154,7 +154,7 @@ pushpc
         jml unlocked_spin_jump
         print "    Spin Jump SFX Call: $", pc
         lda #$04
-        sta $1DFC
+        sta $1DFC|!addr
         rtl 
 
     org $00EA89
@@ -170,10 +170,10 @@ unlocked_spin_jump:
         beq .not_unlocked
         jsl $00D649
         lda #$01
-        sta $140D
+        sta $140D|!addr
         ldy $76
         lda $D5F0,y
-        sta $13E2
+        sta $13E2|!addr
         jml $00D656
     .not_unlocked
         jml $00D65E
@@ -183,7 +183,7 @@ lock_spin_jump_water:
         and #$08
         beq .not_unlocked
         lda #$01
-        sta $140D
+        sta $140D|!addr
         jml $00EA8D
     .not_unlocked
         jml $00EA92
@@ -193,7 +193,7 @@ lock_spin_jump_springboard:
         and #$08
         beq .not_unlocked
         lda #$01
-        sta $140D
+        sta $140D|!addr
     .not_unlocked
         jml $01E69E
 
@@ -270,11 +270,11 @@ lock_yoshi:
     .not_unlocked
         lda $88A2,y
     +   
-        sta $151C,x
+        sta !151C,x
         rtl
 
 lock_baby_yoshi_block:
-        stz $141E
+        stz $141E|!addr
         lda !ability_byte_1
         and #$02
         beq .not_unlocked
@@ -334,7 +334,7 @@ pushpc
 pullpc 
 
 flower_palette_cycle:
-        dec $149B
+        dec $149B|!addr
         bne +
         lda #$00
         sta $71
@@ -392,7 +392,7 @@ pushpc
 pullpc 
 
 taking_damage:
-        sta $1497
+        sta $1497|!addr
         lda #$00
         sta $71
         stz $9D
@@ -408,7 +408,7 @@ pushpc
 pullpc 
 
 pipe_exit:
-        stz $1419
+        stz $1419|!addr
         lda #$00
         sta $71
         stz $9D 
@@ -429,15 +429,15 @@ lock_pballoon:
         and #$08
         beq .not_unlocked
         lda #$09
-        sta $13F3
+        sta $13F3|!addr
         lda #$FF
-        sta $1891
+        sta $1891|!addr
         rtl 
     .not_unlocked
         lda #$01
-        sta $13F3
+        sta $13F3|!addr
         lda #$01
-        sta $1891
+        sta $1891|!addr
         rtl 
 
 ;#########################################################################
@@ -456,11 +456,11 @@ lock_star:
         and #$10
         beq .not_unlocked
         lda #$FF
-        sta $1490
+        sta $1490|!addr
         rtl 
     .not_unlocked
         lda #$01
-        sta $1490
+        sta $1490|!addr
         rtl 
 
 star_timer:
@@ -474,3 +474,7 @@ star_timer:
         lda $13
         cpy #$01
         rtl 
+
+
+inventory_y_speeds:
+        db $04,$FC

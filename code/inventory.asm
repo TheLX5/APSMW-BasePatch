@@ -4,17 +4,17 @@ pushpc
         jsl ow_inventory_main
         nop 
     org $04FB0A
-            STA $0242,y
+            STA $0242|!addr,y
             XBA
             AND #$EF			; Disable priority bit 1 on OW sprites.
-            STA $0243,y
+            STA $0243|!addr,y
             LDA $01
             ORA $03
             BNE +
             LDA $00
-            STA $0240,y
+            STA $0240|!addr,y
             LDA $02
-            STA $0241,y
+            STA $0241|!addr,y
             PHP
             TYA
             LSR
@@ -25,7 +25,7 @@ pushpc
             ROL
             ASL
             AND #$03
-            STA $0430,y
+            STA $0430|!addr,y
             PLY
             DEY
             DEY
@@ -37,16 +37,16 @@ pushpc
         -	LDA $00
             CLC
             ADC inventory_x_offsets,y
-            STA $0200,x
+            STA $0200|!addr,x
             LDA $01
             ADC inventory_y_offsets,y
-            STA $0201,x
+            STA $0201|!addr,x
             LDA #$E8
-            STA $0202,x
+            STA $0202|!addr,x
             LDA #$36
-            STA $0203,x
+            STA $0203|!addr,x
             LDA #$02
-            STA $0420,y
+            STA $0420|!addr,y
             INY
             INX
             INX
@@ -96,20 +96,33 @@ star_power:
 		LDA #$00
 		STA !star_power
 		
-	+	LDA $13F4
-		ORA $13F5
+	+	LDA $13F4|!addr
+		ORA $13F5|!addr
 		RTL
 
 
 ow_inventory_main:
+	if !sa1 == 1
+		wdm
+		rep #$30
+		tsx 
+		cpx #$3000
+		sep #$30
+		bcc .snes
+		%invoke_snes(.snes)
+		REP #$20
+		LDA #$001E
+		rtl 
+	endif
+	.snes 
         LDA !star_power
 		BEQ +
-		STA $1490
+		STA $1490|!addr
 		
-	+	LDA $13D9
+	+	LDA $13D9|!addr
 		CMP #$03
 		BNE .return			; If we're on a level tile,
-		LDA $13D4
+		LDA $13D4|!addr
 		BNE .return			; and we're not looking around,
 		
 		LDA !inventory_timer
@@ -119,7 +132,7 @@ ow_inventory_main:
 		BEQ +				; open/close the inventory if select is pressed.
 		
 		LDA #$1C
-		STA $1DFC
+		STA $1DFC|!addr
 		LDA !inventory_direction
 		EOR #$01
 		STA !inventory_direction			; Switch the inventory direction,
@@ -155,7 +168,7 @@ ow_inventory_main:
 		PLB
 		
 	.return
-		lda $0DC2
+		lda $0DC2|!addr
 		beq +
 		jsr draw_item_box
 	+
@@ -180,36 +193,36 @@ if !num_items > 10
 		ADC $0C
 		SBC #$0F
 		PLP
-		STA $0215
+		STA $0215|!addr
 		
 		LDA #$00
 		SBC $0C
 		EOR #$FF
 		SBC #$17
-		STA $0211			; Set the arrows' Y positions.
+		STA $0211|!addr			; Set the arrows' Y positions.
 		
 		LDA #$F4
-		STA $0210
-		STA $0214			; Set the arrows' X positions.
+		STA $0210|!addr
+		STA $0214|!addr			; Set the arrows' X positions.
 		
 		LDY $0E
 		BNE +
 		LDA #$FF
-	+	STA $0212
+	+	STA $0212|!addr
 	
 		LDA #$F5
 		LDX $00
 		CPY.b #!num_items-0.5/10
 		BNE +
 		LDA #$FF
-	+	STA $0216			; Set the arrows' tiles.
+	+	STA $0216|!addr			; Set the arrows' tiles.
 		
 		LDA #$34
-		STA $0213
-		STA $0217			; Set the arrows' properties.
+		STA $0213|!addr
+		STA $0217|!addr			; Set the arrows' properties.
 		
-		STZ $0424			; Set the arrows' size.
-		STZ $0425			
+		STZ $0424|!addr			; Set the arrows' size.
+		STZ $0425|!addr			
 endif
 		LDX #$00
 		TXY
@@ -234,8 +247,8 @@ endif
 		LSR
 		TAY
 		LDA #$00
-		STA $0426,y
-		STA $0427,y			; Mark the digits as 8x8 tiles.
+		STA $0426|!addr,y
+		STA $0427|!addr,y			; Mark the digits as 8x8 tiles.
 		PLY
 		LDX $00
 		LDA !inventory_sram,x
@@ -247,27 +260,27 @@ endif
 		CPX #$00
 		BEQ +
 		LDA digits,x
-	+	STA $021A,y			; Set the tens digit's tile.
+	+	STA $021A|!addr,y			; Set the tens digit's tile.
 		PLA
 		TAX
 		LDA digits,x
-		STA $021E,y			; Set the ones digit's tile.
+		STA $021E|!addr,y			; Set the ones digit's tile.
 		PLX
 		
 		LDA #$3E
-		STA $021B,y
-		STA $021F,y			; Set the digits' properties
+		STA $021B|!addr,y
+		STA $021F|!addr,y			; Set the digits' properties
 		
 		LDA $4216
 		ADC #$12
-		STA $0218,y
+		STA $0218|!addr,y
 		ADC #$06
-		STA $021C,y			; Set the digits' x positions.
+		STA $021C|!addr,y			; Set the digits' x positions.
 		
 		LDA $0C
 		SBC #$0B
-		STA $0219,y
-		STA $021D,y			; Set the digits' y positions.
+		STA $0219|!addr,y
+		STA $021D|!addr,y			; Set the digits' y positions.
 		
 		TYA
 		CLC
@@ -278,22 +291,22 @@ endif
 		LDA $0C
 		SEC
 		SBC #$18
-		STA $0219,y			; Set the item's Y position.
+		STA $0219|!addr,y			; Set the item's Y position.
 		LDA $4216
 		ADC #$0B
-		STA $0218,y			; Set the item's X position.
+		STA $0218|!addr,y			; Set the item's X position.
 		
 		PHX
 		LDX $00
 		LDA item_props,x
-		STA $021B,y			; Set the item's properties.
+		STA $021B|!addr,y			; Set the item's properties.
 		LDA item_tiles,x
 		PLX
 		CPX $0F
 		BEQ +				; If the item is not selected, use the next tile.
 		INC
 		INC
-	+	STA $021A,y			; Set the item's tiles.
+	+	STA $021A|!addr,y			; Set the item's tiles.
 		
 		PHY
 		TYA
@@ -301,7 +314,7 @@ endif
 		LSR
 		TAY
 		LDA #$02
-		STA $0426,y			; Mark the item as a 16x16 tile.
+		STA $0426|!addr,y			; Mark the item as a 16x16 tile.
 		PLY
 		
 		cpx $0F
@@ -363,7 +376,7 @@ update_inv:	LDA $4214
         BEQ .no_u			; and the cursor isn't at the first page,
         DEC $0E				; move the page up.
     +   LDA #$23
-        STA $1DFC
+        STA $1DFC|!addr
         jmp .return
         
     .no_u
@@ -478,12 +491,12 @@ update_inv:	LDA $4214
 		lda #$00
 		sta !energy_link_reply
 		lda #$29
-		sta $1DFC
+		sta $1DFC|!addr
 		rts 
 
 	..not_enough_funds
 		lda #$2A
-		sta $1DFC
+		sta $1DFC|!addr
 		lda #$00
 		sta !energy_link_reply
 		rts 
@@ -513,24 +526,24 @@ update_inv:	LDA $4214
         RTS
 
 inventory_disable_items:
-		lda $0218,y
-		sta $021C,y
-		lda $0219,y
-		sta $021D,y
-		lda $021A,y
-		sta $021E,y
+		lda $0218|!addr,y
+		sta $021C|!addr,y
+		lda $0219|!addr,y
+		sta $021D|!addr,y
+		lda $021A|!addr,y
+		sta $021E|!addr,y
 		lda #$EE
-		sta $021A,y
-		lda $021B,y
-		sta $021F,y
+		sta $021A|!addr,y
+		lda $021B|!addr,y
+		sta $021F|!addr,y
 		lda #$38
-		sta $021B,y
+		sta $021B|!addr,y
 		phy 
 		tya 
 		lsr #2
 		tay 
 		lda #$02
-		sta $0427,y
+		sta $0427|!addr,y
 		ply 
 		iny #4
 		rts 
@@ -582,8 +595,8 @@ mushroom:
         LDA #$01
         LDX $19
         BEQ powerup_shared
-        ldx $0DB3
-		lda $0DBC,x
+        ldx $0DB3|!addr
+		lda $0DBC|!addr,x
 		sta $00
 		ldx $19
 		lda.l powerup_box_lut,x
@@ -601,8 +614,8 @@ flower:
         LDA #$03
         CMP $19
         BNE powerup_shared
-        ldx $0DB3
-		lda $0DBC,x
+        ldx $0DB3|!addr
+		lda $0DBC|!addr,x
 		sta $00
 		ldx $19
 		lda.l powerup_box_lut,x
@@ -620,8 +633,8 @@ cape:
         LDA #$02
         CMP $19
         BNE powerup_shared
-        ldx $0DB3
-		lda $0DBC,x
+        ldx $0DB3|!addr
+		lda $0DBC|!addr,x
 		sta $00
 		ldx $19
 		lda.l powerup_box_lut,x
@@ -636,10 +649,10 @@ star:
 		lda !ability_byte_2
 		and #$10
 		beq .return
-        LDA $1490
+        LDA $1490|!addr
         BNE +
         LDA #$FF
-        STA $1490
+        STA $1490|!addr
         STA !star_power
         BRA sound_shared
         
@@ -651,19 +664,19 @@ star:
 powerup_shared:
 		ldx $19
 		phx 
-        LDX $0DB3
+        LDX $0DB3|!addr
         STA $19
-        STA $0DB8,x
+        STA $0DB8|!addr,x
 		plx 
 	.box
 		lda.l powerup_box_lut,x
 		beq sound_shared
-        ldx $0DB3
-		sta $0DC2
-		sta $0DBC,x
+        ldx $0DB3|!addr
+		sta $0DC2|!addr
+		sta $0DBC|!addr,x
 sound_shared:
         LDA #$0A
-        STA $1DF9
+        STA $1DF9|!addr
         RTS
 
 powerup_box_lut:
@@ -688,18 +701,18 @@ yoshi_shared:
 		lda !ability_byte_1
 		and #$02
 		beq .return
-		lda $187A
+		lda $187A|!addr
 		beq .valid
-		lda $0DBA
+		lda $0DBA|!addr
 		cmp $00
 		beq .return
 	.valid	
         lda $00
-		sta $0DBA
+		sta $0DBA|!addr
 		lda #$01
-		sta $187A
+		sta $187A|!addr
         LDA #$0A
-        STA $1DF9
+        STA $1DF9|!addr
         RTS
 	.return	
 		pla 
@@ -715,32 +728,32 @@ draw_item_box:
 		lda.l .x_disp,x
 		clc 
 		adc #$12
-		sta $0300,y
+		sta $0300|!addr,y
 		lda.l .y_disp,x
 		clc 
 		adc #$29
-		sta $0301,y
+		sta $0301|!addr,y
 		lda #$EC
-		sta $0302,y
+		sta $0302|!addr,y
 		lda.l .props,x
-		sta $0303,y
+		sta $0303|!addr,y
 		phy 
 		tya 
 		lsr #2
 		tay 
 		lda #$02
-		sta $0460,y
+		sta $0460|!addr,y
 		ply 
 		iny #4
 		inx 
 		cpx #$05
 		bne .loop
 		dey #4
-		ldx $0DC2
+		ldx $0DC2|!addr
 		lda.l .tiles-$01,x
-		sta $0302,y
+		sta $0302|!addr,y
 		lda.l .tiles_props-$01,x
-		sta $0303,y
+		sta $0303|!addr,y
 		rts 
 
 	.x_disp
@@ -788,7 +801,7 @@ draw_energy_link_cost:
 		ldy #$C0
 		jsr draw_coin_counter
 		lda #$EB
-		sta $0206,y
+		sta $0206|!addr,y
 		rts 
 
 
@@ -796,26 +809,26 @@ draw_coin_counter:
 		ldx #$03
 	.loop
 		lda $00
-		sta $0200,y
+		sta $0200|!addr,y
 		sec 
 		sbc #$06
 		sta $00
 		lda $01
-		sta $0201,y 
+		sta $0201|!addr,y 
 		lda $07,x
 		phx 
 		tax 
 		lda.l digits,x
 		plx 
-		sta $0202,y
+		sta $0202|!addr,y
 		lda #$3E
-		sta $0203,y
+		sta $0203|!addr,y
 		phy 
 		tya 
 		lsr #2
 		tay 
 		lda #$00
-		sta $0420,y
+		sta $0420|!addr,y
 		ply 
 		iny #4
 		dex 
@@ -830,20 +843,20 @@ draw_coin_counter:
 		lda $07
 		bne +
 		lda #$F0
-		sta $020D,y
+		sta $020D|!addr,y
 	+	
 		lda $07
 		ora $08
 		bne +
 		lda #$F0
-		sta $0209,y
+		sta $0209|!addr,y
 	+	
 		lda $07
 		ora $08
 		ora $09
 		bne +
 		lda #$F0
-		sta $0205,y
+		sta $0205|!addr,y
 	+	
 		ply 
 
@@ -851,28 +864,28 @@ draw_coin_counter:
 		lda $00
 		sec 
 		sbc #$02
-		sta $0204,y
+		sta $0204|!addr,y
 		sec 
 		sbc #$08
-		sta $0200,y
+		sta $0200|!addr,y
 		lda $01
-		sta $0201,y
-		sta $0205,y
+		sta $0201|!addr,y
+		sta $0205|!addr,y
 		lda #$EA
-		sta $0202,y
+		sta $0202|!addr,y
 		lda #$FA
-		sta $0206,y
+		sta $0206|!addr,y
 		lda #$38
-		sta $0203,y
+		sta $0203|!addr,y
 		lda #$38
-		sta $0207,y
+		sta $0207|!addr,y
 		phy 
 		tya 
 		lsr #2
 		tay 
 		lda #$00
-		sta $0420,y
-		sta $0421,y
+		sta $0420|!addr,y
+		sta $0421|!addr,y
 		ply 
 		rts 
 

@@ -109,7 +109,7 @@ level_palettes:
         lda.l level_palette_pointers+$02,x
         sta !_ptr+$02
         lda [!_ptr]
-        sta $0701
+        sta $0701|!addr
         inc !_ptr
         inc !_ptr
     .load_background
@@ -174,7 +174,7 @@ level_palettes:
         lda !_tileset
         cmp #$0500
         bne .end 
-        lda $192E
+        lda $192E|!addr
         and #$000F
         cmp #$0002
         bne .end
@@ -195,7 +195,7 @@ load_colors:
         ldy !_x_span
     .x_loop
         lda [!_ptr]
-        sta $0703,x
+        sta $0703|!addr,x
         inc !_ptr
         inc !_ptr
         inx #2
@@ -290,7 +290,7 @@ map_palettes:
         sta !_y_span
         jsr load_colors
         lda #$7FFF
-        sta $0703+($48*$02)
+        sta ($0703+($48*$02))|!addr
 
         lda.l map_palette_setting
         and #$00FF
@@ -301,7 +301,7 @@ map_palettes:
         jml $00AD2A
     .custom
     .prepare_index
-        lda $1931
+        lda $1931|!addr
         and #$000F
         dec 
         tax 
@@ -321,7 +321,7 @@ map_palettes:
         sta !_ptr+$02
     .load_back_color
         lda [!_ptr]
-        sta $0701
+        sta $0701|!addr
         inc !_ptr
         inc !_ptr
     .load_layer_2
@@ -379,22 +379,22 @@ pushpc
 pullpc
 
 palette_upload_edit:
-        lda $0100
+        lda $0100|!addr
         cmp #$0E
         beq .map
     .regular
-        ldy $0680
+        ldy $0680|!addr
         ldx.w $A47F+2,y
         jml $00A48E
     .map
-        lda $13D9
+        lda $13D9|!addr
         cmp #$0A
         bne .regular
-        lda $1DE8
+        lda $1DE8|!addr
         cmp #$06
         bne .regular
-        stz $0703
-        stz $0704
+        stz $0703|!addr
+        stz $0704|!addr
         stz $2121
         ldx #$06
     .loop

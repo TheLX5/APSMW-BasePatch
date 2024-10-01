@@ -10,9 +10,9 @@ pullpc
 score_sprites:
         lda !score_sprite_num,x
         beq .return
-        stx $15E9
+        stx $15E9|!addr
         rep #$30
-        and #$001F
+        and #$003F
         sta $00
         asl 
         clc 
@@ -24,13 +24,13 @@ score_sprites:
         lda.l .pointers-3+2,x
         sta $02
         sep #$10
-        ldx $15E9
+        ldx $15E9|!addr
         phb 
         pha 
         plb 
         phk 
         pea.w .return_code-1
-        jml [$0000]
+        jml [$0000|!dp]
     .return_code
         plb
     .return 
@@ -72,6 +72,38 @@ score_sprites:
         dl icon_score                   ; 1D - Red Yoshi
         dl icon_score                   ; 1E - Blue Yoshi
         dl icon_score                   ; 1F - Yellow Yoshi
+        dl icon_score                   ; 20 - 
+        dl icon_score                   ; 21 - 
+        dl icon_score                   ; 22 - 
+        dl icon_score                   ; 23 - 
+        dl icon_score                   ; 24 - 
+        dl icon_score                   ; 25 - 
+        dl icon_score                   ; 26 - 
+        dl icon_score                   ; 27 - 
+        dl icon_score                   ; 28 - 
+        dl icon_score                   ; 29 - 
+        dl icon_score                   ; 2A - 
+        dl icon_score                   ; 2B - 
+        dl icon_score                   ; 2C - 
+        dl icon_score                   ; 2D - 
+        dl icon_score                   ; 2E - 
+        dl icon_score                   ; 2F - 
+        dl icon_score                   ; 30 - 
+        dl icon_score                   ; 31 - 
+        dl icon_score                   ; 32 - 
+        dl icon_score                   ; 33 - 
+        dl icon_score                   ; 34 - 
+        dl icon_score                   ; 35 - 
+        dl icon_score                   ; 36 - 
+        dl icon_score                   ; 37 - 
+        dl icon_score                   ; 38 - 
+        dl icon_score                   ; 39 - 
+        dl icon_score                   ; 3A - 
+        dl icon_score                   ; 3B - 
+        dl icon_score                   ; 3C - 
+        dl icon_score                   ; 3D - 
+        dl icon_score                   ; 3E - 
+        dl icon_score                   ; 3F - 
 
 original_score_sprites:
         lda #$02
@@ -106,7 +138,7 @@ icon_score:
         lda .reward_ptrs,y 
         sta $00
         sep #$20
-        jmp ($0000)
+        jmp ($0000|!dp)
     ..not_give_reward
 
     .handle_movement
@@ -139,9 +171,9 @@ icon_score:
         asl #2
         tay 
         rep #$20
-        lda $001C,y
+        lda $001C|!dp,y
         sta $02
-        lda $001A,y
+        lda $001A|!dp,y
         sta $04
         sep #$20
         lda !score_sprite_x_hi,x
@@ -165,17 +197,17 @@ icon_score:
         lda !score_sprite_y_lo,x
         sec 
         sbc $02
-        sta $0201,y
-        sta $0205,y
+        sta $0201|!addr,y
+        sta $0205|!addr,y
         lda !score_sprite_x_lo,x
         sec 
         sbc $04
         clc 
         adc #$09
-        sta $0200,y
+        sta $0200|!addr,y
         clc 
         adc #$05
-        sta $0204,y
+        sta $0204|!addr,y
         phx 
         lda !score_sprite_num,x
         sec 
@@ -183,55 +215,55 @@ icon_score:
         asl 
         tax 
         lda ..num_tile+$00,x 
-        sta $0202,y
+        sta $0202|!addr,y
         lda ..num_tile+$01,x
-        sta $0206,y
+        sta $0206|!addr,y
         lda ..num_props+$00,x
-        sta $0203,y
+        sta $0203|!addr,y
         lda ..num_props+$01,x
-        sta $0207,y
+        sta $0207|!addr,y
         plx 
         tya 
         lsr #2
         tay 
         lda #$00
-        sta $0420,y
-        sta $0421,y
+        sta $0420|!addr,y
+        sta $0421|!addr,y
         lda.l ..oam_2,x
         tay 
         lda !score_sprite_y_lo,x
         sec 
         sbc $02
-        sta $0201,y
-        sta $0205,y
+        sta $0201|!addr,y
+        sta $0205|!addr,y
         lda !score_sprite_x_lo,x
         sec 
         sbc $04
         sbc #$07
-        sta $0200,y
+        sta $0200|!addr,y
         clc 
         adc #$08
-        sta $0204,y
+        sta $0204|!addr,y
         phx 
         lda !score_sprite_num,x
         sec 
         sbc #$11
         tax 
         lda ..icon_tile,x
-        sta $0202,y
+        sta $0202|!addr,y
         lda ..icon_props,x
-        sta $0203,y
+        sta $0203|!addr,y
         lda ..plus_props,x
-        sta $0207,y
+        sta $0207|!addr,y
         lda ..plus_tile,x
-        sta $0206,y
+        sta $0206|!addr,y
         plx 
         tya 
         lsr #2
         tay 
         lda #$00
-        sta $0420,y
-        sta $0421,y
+        sta $0420|!addr,y
+        sta $0421|!addr,y
         rtl 
 
     ..icon_tile
@@ -370,32 +402,32 @@ icon_score:
         lda.b #50
     .shared_coins
         clc 
-        adc $13CC
+        adc $13CC|!addr
         bcc +
         lda #$FF
     +   
-        sta $13CC
+        sta $13CC|!addr
         lda #$01
-        sta $1DFC
+        sta $1DFC|!addr
         jmp .handle_movement
 
     .yoshi_egg
-        lda $1F24
+        lda $1F24|!addr
         cmp #$FF
         beq ..nope
-        inc $1F24
+        inc $1F24|!addr
     ..nope
         lda #$1F
-        sta $1DFC
+        sta $1DFC|!addr
         jmp .handle_movement
     .boss_token
-        inc $1F26
+        inc $1F26|!addr
         lda #$09
-        sta $1DFC
+        sta $1DFC|!addr
         jmp .handle_movement
 
     .green_mushroom
-        inc $18E4
+        inc $18E4|!addr
         jmp .handle_movement
 
     .mushroom
@@ -425,5 +457,5 @@ icon_score:
     .shared_item
         jsl add_item
         lda #$0B
-        sta $1DFC
+        sta $1DFC|!addr
         jmp .handle_movement

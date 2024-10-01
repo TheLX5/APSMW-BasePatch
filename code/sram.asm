@@ -7,15 +7,17 @@ pushpc
         jml init_sram
     org $009C0F
         jml save_sram
-    org $00FFD8
-        db $02
+    if !sa1 == 0
+        org $00FFD8
+            db $02
+    endif
 pullpc
 
 init_sram:
         beq .load
         jmp .clear
     .load
-        stz $0109
+        stz $0109|!addr
         phx 
         php
         sep #$10
