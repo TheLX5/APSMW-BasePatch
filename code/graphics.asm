@@ -10,6 +10,8 @@ pushpc
         player_gfx:
     org $1CE000
         player_extended_gfx:
+    org $1CEC00
+        player_name:
     org $1CF000
         score_sprites_tiles:
     org $1D8000
@@ -19,13 +21,22 @@ pushpc
             incbin "../data/graphics/inventory_border.bin"
     org $1DC000
         inventory_items:
-            incbin "../data/graphics/inventory_items.bin"
+            ;incbin "../data/graphics/inventory_items.bin"
     org $1DD000
         gfx_blocks:
             incbin "../data/graphics/blocks.bin"
     org $1CF000
         gfx_indicators:
-            incbin "../data/graphics/indicators.bin"
+
+    org $208000
+        sprite_graphics:
+
+    org $2F8000
+        sprite_page_1:
+        
+    org $2F9000
+        sprite_page_2:
+        
 pullpc
 
 
@@ -38,7 +49,7 @@ pushpc
         mario_gfx_dma:
             ldx #$04
             jsl player_code
-            jsl gamemode_code
+            jsl nmi_gamemode_code
             rts
 
     org $00DF1A
@@ -324,15 +335,24 @@ fix_berries:
 
 !gfx_uploaded_flag = $7C
 
-gamemode_code:
+;######################################
+
+nmi_gamemode_code:
         lda $0D9B|!addr
         bmi +
         lda $0100|!addr
         asl 
         tax 
         jsr (.ptrs,x)
+        rtl 
+    +
+        lda $0100|!addr
+        cmp #$14
+        bne +
+        jsr upload_dss
     +
         rtl 
+
     .return
         rts
 
@@ -350,14 +370,14 @@ gamemode_code:
         dw .return      ; 0A Title Screen: Player select
         dw .return      ; 0B Fade to Overworld
         dw .return      ; 0C Load Overworld
-        dw gamemode_ow_fade_in      ; 0D Overworld: Fade in
-        dw gamemode_ow_main      ; 0E Overworld
+        dw nmi_gamemode_ow_fade_in      ; 0D Overworld: Fade in
+        dw nmi_gamemode_ow_main      ; 0E Overworld
         dw .return      ; 0F Fade to Level
         dw .return      ; 10 Fade to Level (black)
         dw .return      ; 11 Load Level (Mario Start!)
         dw .return      ; 12 Prepare Level
-        dw gamemode_level_fade_in      ; 13 Level: Fade in
-        dw gamemode_level_main      ; 14 Level
+        dw nmi_gamemode_level_fade_in      ; 13 Level: Fade in
+        dw nmi_gamemode_level_main      ; 14 Level
         dw .return      ; 15 Fade to Game Over / Time Up
         dw .return      ; 16 Load Game Over / Time Up
         dw .return      ; 17 Game Over / Time Up
@@ -380,7 +400,7 @@ gamemode_code:
         dw .return      ; 28 Ending: The End: Fade in
         dw .return      ; 29 Ending: The End
 
-gamemode_level_fade_in:
+nmi_gamemode_level_fade_in:
         lda !gfx_uploaded_flag
         bne .skip
         inc !gfx_uploaded_flag
@@ -389,11 +409,11 @@ gamemode_level_fade_in:
     .skip
         rts 
 
-gamemode_ow_main:
+nmi_gamemode_ow_main:
         jsr update_map_palette
         rts
 
-gamemode_ow_fade_in:
+nmi_gamemode_ow_fade_in:
         lda !gfx_uploaded_flag
         bne .skip
         inc !gfx_uploaded_flag
@@ -404,9 +424,10 @@ gamemode_ow_fade_in:
         jsr update_map_palette
         rts
 
-gamemode_level_main:
+nmi_gamemode_level_main:
         ldx #$04
         jsr upload_blocks
+        jsr upload_dss
         rts 
 
 
@@ -432,50 +453,33 @@ upload_static_level_gfx:
         sty $2115
         lda #$1801
         sta $4320
-    .indicators
-        ldy.b #gfx_indicators>>16
+
+    .sprite_page_1
+        ldy.b #sprite_page_1>>16
         sty $4324
         ldy #$04
-        lda.w #$F000
+        lda.w #sprite_page_1
         sta $4322
-    ..nums_01
-        lda #$64A0
+        lda #$6000
         sta $2116
-        lda #$0040
+        lda #$1000
         sta $4325
         sty $420B
-    ..nums_35
-        lda #$65A0
+
+    .sprite_page_2
+        lda.w #sprite_page_2
+        sta $4322
+        lda #$6800
         sta $2116
-        lda #$0040
+        lda #$1000
         sta $4325
         sty $420B
-    ..plus_coin
-        lda #$61A0
-        sta $2116
-        lda #$0040
-        sta $4325
-        sty $420B
-    ..egg_mushroom
-        lda #$60A0
-        sta $2116
-        lda #$0040
-        sta $4325
-        sty $420B
-    ..flower_feather
-        lda #$67E0
-        sta $2116
-        lda #$0040
-        sta $4325
-        sty $420B
-    ..token
-        lda #$6380
-        sta $2116
-        lda #$0020
-        sta $4325
-        sty $420B
+
     ..layer_3
-        lda.w #$EC00
+        ldy.b #player_name>>16
+        sty $4324
+        ldy #$04
+        lda.w #player_name
         sta $4322
         lda #$4180
         sta $2116
@@ -774,7 +778,7 @@ upload_blocks:
         beq ..castle
         cmp #$000E
         beq ..castle
-        lda $14AD
+        lda $14AD|!addr
         and #$00FF
         bne ..active
         lda.w #gfx_blocks+$0780
@@ -804,3 +808,70 @@ upload_blocks:
 
 .question_block_srcs
     dw $0000+gfx_blocks,$0080+gfx_blocks,$0100+gfx_blocks,$0180+gfx_blocks
+
+;######################################
+
+macro dss_write_tile()
+    lda !dss_gfx_queue_vram,x       ; force end if there's no gfx in the queue (vram dest = $0000)
+    bne ?continue_upload
+    jmp queue_end
+?continue_upload:
+    sta $2116
+
+    lda !dss_gfx_queue_source_row_1+$01,x
+    sta $23
+    lda !dss_gfx_queue_source_row_1,x
+    sta $22
+    lda #$0040
+    sta $25
+    sty $420B
+
+    lda !dss_gfx_queue_vram,x
+    clc
+    adc #$0100
+    sta $2116
+    lda !dss_gfx_queue_source_row_2,x
+    sta $22
+    lda #$0040
+    sta $25
+    sty $420B
+
+    lda #$0000                      ; mark slot as unused
+    sta !dss_gfx_queue_vram,x
+
+    lda !dss_gfx_queue_index_nmi
+    clc 
+    adc #$0008                      ; update index
+    sta !dss_gfx_queue_index_nmi
+    tax
+endmacro
+
+upload_dss:
+    lda !dss_gfx_queue_index_nmi    ; get index of the next graphics ready to be uploaded to vram
+    tax
+    lda !dss_gfx_queue_vram+1,x     ; if the next entry in the queue is blank, skip the entire routine
+    bne .start_queue
+    rts
+
+.start_queue
+    rep #$20
+    lda #$4300
+    tcd                             ; small optimization: change dp to $4300
+
+    lda #$1801
+    sta $20                         ; setup some regs
+    ldy #$80
+    sty $2115
+    ldy #$04
+
+    !i = 0
+while !i < !dss_queue_tiles
+    %dss_write_tile()
+    !i #= !i+1
+endwhile
+
+queue_end:
+    lda #$3000                      ; restore dp
+    tcd
+    sep #$20
+    rts

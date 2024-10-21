@@ -154,8 +154,8 @@ pullpc
             bpl -
 
             sta !special_world_clear_flag
-            sta !received_items_count+$00
-            sta !received_items_count+$01
+            sta (!received_items_count)+$00
+            sta (!received_items_count)+$01
             sta !goal_item_count
             sta !death_counter+$00
             sta !death_counter+$01
@@ -174,6 +174,7 @@ pullpc
 
             lda #$FF
             sta !thwimp_index
+            sta !fishin_boo_index
         
             sep #$10
             jsl clear_tilemap
@@ -401,10 +402,10 @@ pullpc
 ;# Move Thwimps tilemap to another spot in VRAM in order to make them global
 
 pushpc
-    org $019C13
-        db $7E,$7E,$7F,$7F
-    org $07F425
-        db $32
+    ;org $019C13
+    ;    db $7E,$7E,$7F,$7F
+    ;org $07F425
+    ;    db $32
 pullpc
 
 ;#########################################################################
@@ -696,9 +697,13 @@ pullpc
 
 
 ;#########################################################################
-;# 
+;# Remove enemy section from the ending sequence
 
 pushpc
+    org $009329+($21*2)
+        dw $963D
+        dw $9F7C
+        dw $968D
 pullpc
 
 

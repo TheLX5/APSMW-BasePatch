@@ -247,7 +247,7 @@ blocksanity_keep_collected:
     beq ..normal_behavior
     cmp #$FF
     beq ..normal_behavior
-    inc $C2,x
+    inc !C2,x
 ..normal_behavior
     rts 
 
@@ -307,7 +307,7 @@ blocksanity_keep_collected:
     lda #$32
     jml $0DB5A5
 ..normal_behavior
-    lda $1F27,x
+    lda $1F27|!addr,x
     bne ..fill
     jml $0DB594
 ..fill

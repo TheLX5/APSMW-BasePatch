@@ -103,7 +103,6 @@ star_power:
 
 ow_inventory_main:
 	if !sa1 == 1
-		wdm
 		rep #$30
 		tsx 
 		cpx #$3000

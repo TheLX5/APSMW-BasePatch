@@ -267,54 +267,54 @@ icon_score:
         rtl 
 
     ..icon_tile
-        db $1B      ; 1 coin
-        db $1B      ; 5 coins
-        db $1B      ; 10 coins
-        db $1B      ; 15 coins
-        db $0A      ; yoshi egg
-        db $0B      ; 1up mushroom
-        db $5A      ; mushroom
-        db $5A      ; flower
-        db $5A      ; feather
-        db $38      ; boss token
-        db $5A      ; star
-        db $0A      ; green yoshi
-        db $0A      ; red yoshi
-        db $0A      ; blue yoshi
-        db $0A      ; yellow yoshi
+        db $1D      ; 1 coin
+        db $1D      ; 5 coins
+        db $1D      ; 10 coins
+        db $1D      ; 15 coins
+        db $0F      ; yoshi egg
+        db $2E      ; 1up mushroom
+        db $2E      ; mushroom
+        db $2F      ; flower
+        db $3E      ; feather
+        db $0E      ; boss token
+        db $3F      ; star
+        db $1E      ; green yoshi
+        db $1E      ; red yoshi
+        db $1E      ; blue yoshi
+        db $1E      ; yellow yoshi
     ..icon_props
         db $34      ; coin
         db $34      ; coin
         db $34      ; coin
         db $34      ; coin
-        db $30      ; yoshi egg
+        db $34      ; yoshi egg
         db $3A      ; 1up mushroom
-        db $34      ; mushroom
-        db $38      ; flower
-        db $3A      ; feather
+        db $38      ; mushroom
+        db $3A      ; flower
+        db $34      ; feather
         db $34      ; boss token
-        db $36      ; star
+        db $34      ; star
         db $3A      ; green yoshi
         db $38      ; red yoshi
         db $36      ; blue yoshi
         db $34      ; yellow yoshi
 
     ..plus_tile
-        db $1A      ; 1 coin
-        db $1A      ; 5 coins
-        db $1A      ; 10 coins
-        db $1A      ; 50 coins
-        db $1A      ; yoshi egg
-        db $1A      ; 1up mushroom
-        db $1A      ; mushroom
-        db $1A      ; flower
-        db $1A      ; feather
-        db $1A      ; boss token
-        db $1A      ; star
-        db $1A      ; green yoshi
-        db $1A      ; red yoshi
-        db $1A      ; blue yoshi
-        db $1A      ; yellow yoshi
+        db $0A      ; 1 coin
+        db $0A      ; 5 coins
+        db $0A      ; 10 coins
+        db $0A      ; 50 coins
+        db $0A      ; yoshi egg
+        db $0A      ; 1up mushroom
+        db $0A      ; mushroom
+        db $0A      ; flower
+        db $0A      ; feather
+        db $0A      ; boss token
+        db $0A      ; star
+        db $0A      ; green yoshi
+        db $0A      ; red yoshi
+        db $0A      ; blue yoshi
+        db $0A      ; yellow yoshi
     ..plus_props
         db $32      ; 1 coin
         db $32      ; 5 coins
@@ -334,21 +334,21 @@ icon_score:
 
 
     ..num_tile
-        db $4B,$69  ; 1 coin
-        db $5B,$69  ; 5 coins
-        db $4B,$4A  ; 10 coins
-        db $5B,$4A  ; 50 coins
-        db $4B,$69  ; yoshi egg
-        db $4B,$69  ; 1up mushroom
-        db $4B,$69  ; mushroom
-        db $4B,$69  ; flower
-        db $4B,$69  ; feather
-        db $4B,$69  ; boss token
-        db $4B,$69  ; star
-        db $4B,$69  ; green yoshi
-        db $4B,$69  ; red yoshi
-        db $4B,$69  ; blue yoshi
-        db $4B,$69  ; yellow yoshi
+        db $1B,$69  ; 1 coin
+        db $3B,$69  ; 5 coins
+        db $1B,$1A  ; 10 coins
+        db $3B,$1A  ; 50 coins
+        db $1B,$69  ; yoshi egg
+        db $1B,$69  ; 1up mushroom
+        db $1B,$69  ; mushroom
+        db $1B,$69  ; flower
+        db $1B,$69  ; feather
+        db $1B,$69  ; boss token
+        db $1B,$69  ; star
+        db $1B,$69  ; green yoshi
+        db $1B,$69  ; red yoshi
+        db $1B,$69  ; blue yoshi
+        db $1B,$69  ; yellow yoshi
 
     ..num_props
         db $34,$34  ; 1 coin
