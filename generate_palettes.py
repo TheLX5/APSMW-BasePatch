@@ -1,4 +1,5 @@
 import os
+import json
 
 tilesets = {
     "grass_hills": [],
@@ -110,6 +111,7 @@ for tileset in tilesets.keys():
     data += f"            %init_level_group({tileset})\n"
     for palette in palettes:
         data += f"            %load_level_palette_file({palette[:-4]})\n"
+        tilesets[tileset].append(palette)
     i += 1
 
 data += map_data
@@ -122,6 +124,7 @@ for map_name in maps.keys():
     data += f"            %init_map_group({map_name})\n"
     for palette in palettes:
         data += f"            %load_map_palette_file({palette[:-4]})\n"
+        maps[map_name].append(palette)
     i += 1
 
 data += "pullpc\n\n"
@@ -129,3 +132,8 @@ data += "pullpc\n\n"
 with open("data/palette_data.asm", "w", encoding='utf-8') as f:
     f.write(data)
     f.close()
+
+with open('level_palettes.json', 'w', encoding='utf-8') as f:
+    json.dump(tilesets, f, ensure_ascii=False, indent=4)
+with open('map_palettes.json', 'w', encoding='utf-8') as f:
+    json.dump(maps, f, ensure_ascii=False, indent=4)
