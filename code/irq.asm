@@ -119,7 +119,7 @@ dma_vram:
         tax 
         rep #$20
         lda.l inventory_vram_addr,x
-        ldx #$02
+        ldx #$04
         sta $00
         sta $2116
         lda #$1801
@@ -127,27 +127,41 @@ dma_vram:
         beq .write
         lda #$3981
     .write
-        sta $4310
+        sta $4320
         lda.w #!vram_backup
-        sta $4312
-        stx $4316
+        sta $4322
+        stx $4326
         ldy.b #!vram_backup>>16
-        sty $4314
+        sty $4324
         stx $420B
 
         ldy !inventory_direction
         beq .return
 
+        sep #$20
+		sei 
+		lda #$00            ; ugly as sin
+		sta $4200           ; waits for the next v-blank period
+	..wait
+        lda #$0F
+        sta $2100
+		lda $4210
+		bpl ..wait
+		lda #$A1
+		sta $4200
+		cli 
+        rep #$20
+
         lda.w #!inventory_gfx_loc<<4
         sta $2116
         lda #$1801
-        sta $4310
+        sta $4320
         lda.w #inventory_gfx
-        sta $4312
+        sta $4322
         ldy #$80
-        sty $4315
+        sty $4325
         ldy.b #inventory_gfx>>16
-        sty $4314
+        sty $4324
         stx $420B
 
         inx 
