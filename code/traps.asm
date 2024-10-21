@@ -5,7 +5,20 @@ includefrom "main.asm"
 pushpc
     org $00A2D8
         jsl handle_traps
+
+    org $00C9FE
+        jsl reset_traps
+        nop #2
 pullpc
+
+reset_traps:
+        sta $0DD5|!addr
+        lda #$01
+        sta !reset_reverse_controls_trap
+        sta !reset_fishin_boo_trap
+        sta !reset_ice_trap
+        lda $13C6|!addr
+        rtl 
 
 handle_traps:
         lda $0100|!addr
@@ -22,13 +35,30 @@ handle_traps:
         beq .no_reverse_controls
         jsr reverse_controls_trap
     .no_reverse_controls
+    
         lda !thwimp_trap
         beq .no_thwimp
         jsr spawn_thwimp
     .no_thwimp
         jsr handle_thwimp
+        
+        lda !fishin_boo_trap
+        and #$7F
+        beq .no_fishin_boo
+        jsr spawn_fishin_boo
+    .no_fishin_boo
+
+        lda !ice_trap
+        beq .no_ice_trap
+        jsr ice_trap
+    .no_ice_trap
 
         jml $00E2BD
+
+ice_trap:
+        lda #$01
+        sta $86
+        rts 
 
 reverse_controls_trap:
     .swap_left_and_right
@@ -91,8 +121,11 @@ reverse_controls_trap:
     ..no_swap_press
         rts
 
+;#########################################################################
+
 spawn_thwimp:
-        ldx !thwimp_index
+        lda !thwimp_index
+        tax 
         bpl .return
         jsl $02A9E4
         bpl .found
@@ -100,7 +133,8 @@ spawn_thwimp:
         rts 
     .found
         tyx 
-        stz !thwimp_trap
+        lda #$00
+        sta !thwimp_trap
         lda #$10
         sta $1DF9|!addr
         lda #$27
@@ -122,12 +156,14 @@ spawn_thwimp:
         lda !1686,x
         ora #$80
         sta !1686,x
-        stx !thwimp_index
+        txa 
+        sta !thwimp_index
         rts 
 
 handle_thwimp:
-        ldx !thwimp_index
+        lda !thwimp_index
         bmi .return
+        tax 
         lda !14D4,x
         xba 
         lda !D8,x
@@ -142,4 +178,48 @@ handle_thwimp:
         and #$7F
         sta !1686,x
     .return
+        rts 
+
+
+;#########################################################################
+
+spawn_fishin_boo:
+        lda !fishin_boo_index
+        tax 
+        bpl .return
+        jsl $02A9E4
+        bpl .found
+    .return
+        rts 
+    .found
+        tyx
+        lda #$81
+        sta !fishin_boo_trap
+        lda #$10
+        sta $1DF9|!addr
+        lda #$AE
+        sta !9E,x
+        lda #$08
+        sta !14C8,x
+        jsl $07F7D2
+        rep #$20
+        lda $1A
+        clc 
+        adc #$011D
+        sep #$20
+        sta !E4,x
+        xba 
+        sta !14E0,x
+        lda $1C
+        clc 
+        adc #$15
+        sta !D8,x
+        lda $1D
+        adc #$00
+        sta !14D4,x
+        lda !167A,x
+        ora #$04
+        sta !167A,x
+        txa 
+        sta !fishin_boo_index
         rts 
