@@ -26,6 +26,10 @@ incsrc "defines.asm"
 ;#########################################################################
 ;# AP Settings defaults
 
+for i = $0..$20
+    org $208000+(!i*$10000)
+        fillbyte $FF : fill $8000
+endfor
 
 ;########################################################################
 ;# Code imports
@@ -33,6 +37,7 @@ incsrc "defines.asm"
 
 org !data_location
     incsrc "data/data_tables.asm"
+    print "DATA LAST ADDR: $", pc
 
 org !custom_level_palettes_ptrs
     level_palette_pointers:
@@ -40,8 +45,6 @@ org !custom_level_palettes_ptrs
 org !custom_map_palettes_ptrs
     map_palette_pointers:
     
-; TODO: Resolver problemas del OW en SA-1 (probablemente sea overworld.asm)
-
 org !main_code_location
     incsrc "code/fastrom.asm"
     incsrc "code/sram.asm"
@@ -56,6 +59,9 @@ org !main_code_location
     incsrc "code/graphics.asm"
     incsrc "code/inventory.asm"
     incsrc "code/irq.asm"
+    incsrc "code/gamemode.asm"
+    incsrc "code/dynamic_spritesets.asm"
+    print "MAIN CODE LAST ADDR: $", pc
 
 ;org $00A273
 ;    db $00
