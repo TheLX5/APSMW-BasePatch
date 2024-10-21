@@ -644,7 +644,6 @@ lemmy_wendy_init:
 ..end
 
 mode_7_fights_init:
-    wdm 
     rep #$30
     ldx.w #.vram_destinations_end-.vram_destinations-2
 -   
