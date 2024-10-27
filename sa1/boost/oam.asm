@@ -437,11 +437,27 @@ oam_compress:
 	PLB
     %oam_flush_rotation_priority(!maxtile_pointer_max)
     
+	lda $0100
+	cmp #$0F
+	bcs .level_flush
+	jsr oam_flush_map
+	jmp .end_flush
+
+.level_flush
+
     LDA $0D9B
 	CMP #$C0
 	BEQ .ludwig_roy_morton
 	CMP #$C1 
 	BEQ .bowser_flush
+
+	lda $1932 
+	cmp #$01
+	bne .standard_flush
+
+	; special case for candle bg
+.castle_flush
+	JSR oam_flush_castle_behind
 
 	; standard flush rule
 	; also used for Reznor and Iggy/Larry fights
@@ -451,6 +467,7 @@ oam_compress:
     JSR oam_flush_lakitu
 	JSR oam_flush_north
 	BRA .end_flush
+
 
 	; bowser's special flush rule
 .bowser_flush
@@ -622,6 +639,10 @@ call_nmstl_mockup_flush:
     LDA $0D9B				; require to be checked before $13F9 because these battles set $13F9 to $03
 	BMI .bosses
 
+	lda $1932
+	cmp #$01				; fixes candle bg on tileset 1
+	beq .behind_scenery
+
     LDA $13F9
     BNE .behind_scenery
     
@@ -727,21 +748,21 @@ call_iggy_larry_oam_flush:
 ; Priority: maximum.
 ; Flush $0200-$02FC
 oam_flush_south:
-	%oam_flush_buffer(!maxtile_pointer_high, 0, 63)
+	%oam_flush_buffer(!maxtile_pointer_max, 0, 63)
 	RTS
 
 ; Priority: normal.
 ; Flush $0300-$0324 (player) + $0328-$032C (yoshi)
 ; $0330-$0334 are likelly trashed (yoshi clone tiles).
 oam_flush_player:
-	%oam_flush_buffer(!maxtile_pointer_normal, 64, 75)
+	%oam_flush_buffer(!maxtile_pointer_high, 64, 75)
 	RTS
     
 ; Priority: standard.
 ; Flush $0330 is 76th OAM tile (0 based).
 ; $03F8 and $03FC are lakitu cloud tiles.
 oam_flush_north:
-	%oam_flush_buffer(!maxtile_pointer_low, 76, 127-2)
+	%oam_flush_buffer(!maxtile_pointer_normal, 76, 127-2)
 	RTS
     
 ; Priority: standard.
@@ -749,14 +770,25 @@ oam_flush_north:
 ; $03F8 and $03FC are lakitu cloud tiles.
 ; $03D0 - $03F4 are behind scenery special tiles.
 oam_flush_north_except_behind:
-	%oam_flush_buffer(!maxtile_pointer_low, 76, 127-10-2)
+	%oam_flush_buffer(!maxtile_pointer_normal, 76, 127-10-2)
 	RTS
     
+; Priority: standard.
+; Flush $03F8 and $03FC.
+oam_flush_castle_behind:
+	%oam_flush_buffer(!maxtile_pointer_low, 127-10-2-1, 127)
+    RTS
+
 ; Priority: standard.
 ; Flush $03F8 and $03FC.
 oam_flush_lakitu:
     %oam_flush_buffer(!maxtile_pointer_low, 126, 127)
     RTS
+
+oam_flush_map:
+	%oam_flush_buffer(!maxtile_pointer_high, 0, 63)
+	%oam_flush_buffer(!maxtile_pointer_low, 76, 127)
+	RTS
 
 
 ; Boss specific flushes below
