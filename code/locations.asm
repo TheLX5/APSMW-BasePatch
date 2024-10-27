@@ -422,6 +422,7 @@ pushpc
 
     org $0DFE9F
         new_look_question_block:
+            .progresful
             .progressive
                 dw $1489,$148B,$148A,$1482
             .useful
@@ -429,6 +430,7 @@ pushpc
             .filler
                 dw $1C89,$1C8B,$1C8A,$1C82
         new_look_question_block_castle:
+            .progresful
             .progressive
                 dw $148E,$149E,$148F,$149F
             .useful
@@ -436,6 +438,7 @@ pushpc
             .filler
                 dw $1C8E,$1C9E,$1C8F,$1C9F
         new_look_pswitch_question_block:
+            .progresful
             .progressive
                 dw $1499,$149B,$149A,$1492
             .useful
@@ -443,6 +446,7 @@ pushpc
             .filler
                 dw $1C99,$1C9B,$1C9A,$1C92
         new_look_bonus_block:
+            .progresful
             .progressive
                 dw $14BE,$14F6,$14D7,$14F7
             .useful
@@ -450,6 +454,7 @@ pushpc
             .filler
                 dw $1CBE,$1CF6,$1CD7,$1CF7
         new_look_goal_top_back:
+            .progresful
             .progressive
                 dw $14A0,$14A2,$14A1,$14A3
             .useful
@@ -457,6 +462,7 @@ pushpc
             .filler
                 dw $1CA0,$1CA2,$1CA1,$1CA3
         new_look_goal_bottom_back:
+            .progresful
             .progressive
                 dw $14A2,$14A2,$14A3,$14A3
             .useful
@@ -464,6 +470,7 @@ pushpc
             .filler
                 dw $1CA2,$1CA2,$1CA3,$1CA3
         new_look_goal_top_front:
+            .progresful
             .progressive
                 dw $34A0,$34A2,$34A1,$34A3
             .useful
@@ -471,6 +478,7 @@ pushpc
             .filler
                 dw $3CA0,$3CA2,$3CA1,$3CA3
         new_look_goal_bottom_front:
+            .progresful
             .progressive
                 dw $34A2,$34A2,$34A3,$34A3
             .useful
@@ -569,8 +577,8 @@ change_block_appareance:
 .bonus_blocks
     lda.l block_visual_indicator
     and #$0008
-    beq ..invalid
-    ldx !current_ow_level
+    beq ..may_be_invalid
+    ldx !shuffled_ow_level
     lda.l bonus_block_item_flags,x
     and #$00FF
     tax 
@@ -583,6 +591,8 @@ change_block_appareance:
     sta $0A
     plx 
     rtl 
+..may_be_invalid
+    jmp .question_blocks
 
 .goal_back_1
     lda.l block_visual_indicator
@@ -866,7 +876,7 @@ new_look_question_block_ptr:
     dw new_look_question_block_filler
     dw new_look_question_block_progressive
     dw new_look_question_block_useful
-    dw new_look_question_block_filler
+    dw new_look_question_block_progresful
     dw new_look_question_block_progressive
     dw new_look_question_block_progressive
     dw new_look_question_block_progressive
@@ -875,7 +885,7 @@ new_look_question_block_castle_ptr:
     dw new_look_question_block_castle_filler
     dw new_look_question_block_castle_progressive
     dw new_look_question_block_castle_useful
-    dw new_look_question_block_castle_filler
+    dw new_look_question_block_castle_progresful
     dw new_look_question_block_castle_progressive
     dw new_look_question_block_castle_progressive
     dw new_look_question_block_castle_progressive
@@ -885,7 +895,7 @@ new_look_pswitch_question_block_ptr:
     dw new_look_pswitch_question_block_filler
     dw new_look_pswitch_question_block_progressive
     dw new_look_pswitch_question_block_useful
-    dw new_look_pswitch_question_block_filler
+    dw new_look_pswitch_question_block_progresful
     dw new_look_pswitch_question_block_progressive
     dw new_look_pswitch_question_block_progressive
     dw new_look_pswitch_question_block_progressive
@@ -895,7 +905,7 @@ new_look_bonus_block_ptr:
     dw new_look_bonus_block_filler
     dw new_look_bonus_block_progressive
     dw new_look_bonus_block_useful
-    dw new_look_bonus_block_filler
+    dw new_look_bonus_block_progresful
     dw new_look_bonus_block_progressive
     dw new_look_bonus_block_progressive
     dw new_look_bonus_block_progressive
@@ -904,7 +914,7 @@ new_look_goal_top_back_ptr:
     dw new_look_goal_top_back_filler
     dw new_look_goal_top_back_progressive
     dw new_look_goal_top_back_useful
-    dw new_look_goal_top_back_filler
+    dw new_look_goal_top_back_progresful
     dw new_look_goal_top_back_progressive
     dw new_look_goal_top_back_progressive
     dw new_look_goal_top_back_progressive
@@ -913,7 +923,7 @@ new_look_goal_bottom_back_ptr:
     dw new_look_goal_bottom_back_filler
     dw new_look_goal_bottom_back_progressive
     dw new_look_goal_bottom_back_useful
-    dw new_look_goal_bottom_back_filler
+    dw new_look_goal_bottom_back_progresful
     dw new_look_goal_bottom_back_progressive
     dw new_look_goal_bottom_back_progressive
     dw new_look_goal_bottom_back_progressive
@@ -922,7 +932,7 @@ new_look_goal_top_front_ptr:
     dw new_look_goal_top_front_filler
     dw new_look_goal_top_front_progressive
     dw new_look_goal_top_front_useful
-    dw new_look_goal_top_front_filler
+    dw new_look_goal_top_front_progressive
     dw new_look_goal_top_front_progressive
     dw new_look_goal_top_front_progressive
     dw new_look_goal_top_front_progressive
@@ -931,7 +941,7 @@ new_look_goal_bottom_front_ptr:
     dw new_look_goal_bottom_front_filler
     dw new_look_goal_bottom_front_progressive
     dw new_look_goal_bottom_front_useful
-    dw new_look_goal_bottom_front_filler
+    dw new_look_goal_bottom_front_progresful
     dw new_look_goal_bottom_front_progressive
     dw new_look_goal_bottom_front_progressive
     dw new_look_goal_bottom_front_progressive
